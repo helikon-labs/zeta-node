@@ -56,4 +56,4 @@ jobs:
         with:
           files: |
             target/production/parachain-template-node
-            target/production/wbuild/parachain-template-runtime/parachain_template_runtime.compact.compressed.wasm
+            target/production/wbuild/zeta-runtime/zeta_runtime.compact.compressed.wasm

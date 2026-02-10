@@ -95,7 +95,7 @@ cargo install polkadot-omni-node
 
 > For more advanced options, please see the installation section at [`crates.io/omni-node`](https://crates.io/crates/polkadot-omni-node).
 
-#### Build `parachain-template-runtime`
+#### Build `zeta-runtime`
 
 ```sh
 cargo build --profile production
@@ -113,7 +113,7 @@ cargo install staging-chain-spec-builder
 
 ```sh
 chain-spec-builder create --relay-chain "rococo-local" --runtime \
-    target/release/wbuild/parachain-template-runtime/parachain_template_runtime.wasm named-preset development
+    target/release/wbuild/zeta-runtime/zeta_runtime.wasm named-preset development
 ```
 
 **Note**: the `relay-chain` flag is required by Omni Node. The `relay-chain` value is set in accordance
@@ -227,12 +227,12 @@ To use `chopsticks`, please install the latest version according to the installa
 
 ### Build a raw chain spec
 
-Build the `parachain-template-runtime` as mentioned before in this guide and use `chain-spec-builder`
+Build the `zeta-runtime` as mentioned before in this guide and use `chain-spec-builder`
 again but this time by passing `--raw-storage` flag:
 
 ```sh
 chain-spec-builder create --raw-storage --relay-chain "rococo-local" --runtime \
-    target/release/wbuild/parachain-template-runtime/parachain_template_runtime.wasm named-preset development
+    target/release/wbuild/zeta-runtime/zeta_runtime.wasm named-preset development
 ```
 
 ### Start `chopsticks` with the chain spec

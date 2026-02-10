@@ -10589,28 +10589,11 @@ dependencies = [
  "futures",
  "jsonrpsee",
  "log",
- "parachain-template-runtime",
  "parity-scale-codec",
  "polkadot-sdk",
  "serde",
  "substrate-prometheus-endpoint",
-]
-
-[[package]]
-name = "parachain-template-runtime"
-version = "0.1.0"
-dependencies = [
- "cumulus-pallet-parachain-system",
- "docify",
- "hex-literal",
- "log",
- "pallet-zeta",
- "parity-scale-codec",
- "polkadot-sdk",
- "scale-info",
- "serde_json",
- "smallvec",
- "substrate-wasm-builder",
+ "zeta-runtime",
 ]
 
 [[package]]
@@ -20659,6 +20642,23 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.114",
+]
+
+[[package]]
+name = "zeta-runtime"
+version = "0.1.0"
+dependencies = [
+ "cumulus-pallet-parachain-system",
+ "docify",
+ "hex-literal",
+ "log",
+ "pallet-zeta",
+ "parity-scale-codec",
+ "polkadot-sdk",
+ "scale-info",
+ "serde_json",
+ "smallvec",
+ "substrate-wasm-builder",
 ]
 
 [[package]]

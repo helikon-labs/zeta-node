@@ -161,8 +161,8 @@ impl_opaque_keys! {
 
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-    spec_name: alloc::borrow::Cow::Borrowed("parachain-template-runtime"),
-    impl_name: alloc::borrow::Cow::Borrowed("parachain-template-runtime"),
+    spec_name: alloc::borrow::Cow::Borrowed("zeta-runtime"),
+    impl_name: alloc::borrow::Cow::Borrowed("zeta-runtime"),
     authoring_version: 1,
     spec_version: 1,
     impl_version: 0,

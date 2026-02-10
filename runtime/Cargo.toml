@@ -1,6 +1,6 @@
 [package]
-name = "parachain-template-runtime"
-description = "A parachain runtime template built with Substrate and Cumulus, part of Polkadot Sdk."
+name = "zeta-runtime"
+description = "Zeta blockchain runtime."
 authors.workspace = true
 edition.workspace = true
 homepage.workspace = true
