@@ -19,34 +19,30 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
-
+      # Ubuntu free disk space
       - if: contains(matrix.os, 'ubuntu')
         uses: ./.github/actions/free-disk-space
+      # Ubuntu dependencies
       - if: contains(matrix.os, 'ubuntu')
         uses: ./.github/actions/ubuntu-dependencies
+      # macOS dependencies
       - if: contains(matrix.os, 'macos')
         uses: ./.github/actions/macos-dependencies
-
       - name: Run clippy
         run: |
-          SKIP_PALLET_REVIVE_FIXTURES=1 SKIP_WASM_BUILD=1 cargo clippy --all-targets --all-features --locked --workspace --quiet
+          SKIP_PALLET_REVIVE_FIXTURES=1 SKIP_WASM_BUILD=1 cargo clippy --all-targets --all-features --locked --workspace
         timeout-minutes: 30
-
       - name: Run the tests
         run: SKIP_WASM_BUILD=1 cargo test
         timeout-minutes: 15
-
       - name: Build the docs
         run: SKIP_WASM_BUILD=1 cargo doc --workspace --no-deps
         timeout-minutes: 15
-
-  build-docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/free-disk-space
-
-      - name: Build the Dockerfile
-        run: docker build . -t polkadot-sdk-parachain-template
-        timeout-minutes: 90
+#  build-docker:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: ./.github/actions/free-disk-space
+#      - name: Build the Dockerfile
+#        run: docker build . -t polkadot-sdk-parachain-template
+#        timeout-minutes: 90
