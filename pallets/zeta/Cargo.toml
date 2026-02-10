@@ -1,12 +1,12 @@
 [package]
-name = "pallet-parachain-template"
-description = "FRAME pallet template for defining custom runtime logic."
-version = "0.1.0"
-license = "Unlicense"
+name = "pallet-zeta"
+description = "Zeta pallet for defining custom runtime logic."
 authors.workspace = true
-homepage.workspace = true
-repository.workspace = true
 edition.workspace = true
+homepage.workspace = true
+license.workspace = true
+repository.workspace = true
+version.workspace = true
 publish = false
 
 [lints]

@@ -1,15 +1,15 @@
 [workspace.package]
-license = "GPL-3.0"
 authors = ["kukabi | Helikon <kutsal@helikon.io>"]
-homepage = "https://helikon.io"
-repository = "https://github.com/helikon-labs/zeta-node.git"
 edition = "2021"
+homepage = "https://helikon.io"
+license = "GPL-3.0"
+repository = "https://github.com/helikon-labs/zeta-node.git"
+version = "0.1.0"
 
 [workspace]
-default-members = ["pallets/template", "runtime"]
-members = ["node", "pallets/template", "runtime"]
+default-members = ["pallets/zeta", "runtime"]
+members = ["node", "pallets/zeta", "runtime"]
 resolver = "2"
-
 
 [workspace.lints.rust]
 suspicious_double_ref_op = { level = "allow", priority = 2 }
@@ -51,7 +51,7 @@ zero-prefixed-literal = { level = "allow", priority = 2 }            # 00_1000_0
 
 [workspace.dependencies]
 parachain-template-runtime = { path = "./runtime", default-features = false }
-pallet-parachain-template = { path = "./pallets/template", default-features = false }
+pallet-zeta = { path = "./pallets/zeta", default-features = false }
 clap = { version = "4.5.13" }
 codec = { version = "3.7.5", default-features = false, package = "parity-scale-codec" }
 color-print = { version = "0.3.4" }

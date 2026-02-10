@@ -310,7 +310,7 @@ mod runtime {
 
     // Template
     #[runtime::pallet_index(50)]
-    pub type TemplatePallet = pallet_parachain_template;
+    pub type ZetaPallet = pallet_zeta;
 }
 
 #[docify::export(register_validate_block)]

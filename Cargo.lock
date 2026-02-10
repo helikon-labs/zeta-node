@@ -9683,15 +9683,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-parachain-template"
-version = "0.1.0"
-dependencies = [
- "parity-scale-codec",
- "polkadot-sdk-frame",
- "scale-info",
-]
-
-[[package]]
 name = "pallet-parameters"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10580,6 +10571,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-zeta"
+version = "0.1.0"
+dependencies = [
+ "parity-scale-codec",
+ "polkadot-sdk-frame",
+ "scale-info",
+]
+
+[[package]]
 name = "parachain-template-node"
 version = "0.1.0"
 dependencies = [
@@ -10604,7 +10604,7 @@ dependencies = [
  "docify",
  "hex-literal",
  "log",
- "pallet-parachain-template",
+ "pallet-zeta",
  "parity-scale-codec",
  "polkadot-sdk",
  "scale-info",
