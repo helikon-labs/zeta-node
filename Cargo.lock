@@ -10580,23 +10580,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "parachain-template-node"
-version = "0.1.0"
-dependencies = [
- "clap",
- "color-print",
- "docify",
- "futures",
- "jsonrpsee",
- "log",
- "parity-scale-codec",
- "polkadot-sdk",
- "serde",
- "substrate-prometheus-endpoint",
- "zeta-runtime",
-]
-
-[[package]]
 name = "parachains-common"
 version = "27.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -20642,6 +20625,23 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.114",
+]
+
+[[package]]
+name = "zeta-node"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "color-print",
+ "docify",
+ "futures",
+ "jsonrpsee",
+ "log",
+ "parity-scale-codec",
+ "polkadot-sdk",
+ "serde",
+ "substrate-prometheus-endpoint",
+ "zeta-runtime",
 ]
 
 [[package]]

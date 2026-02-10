@@ -1,0 +1,31 @@
+[relaychain]
+default_command = "polkadot"
+chain = "rococo-local"
+
+[[relaychain.nodes]]
+name = "alice"
+validator = true
+ws_port = 9944
+
+[[relaychain.nodes]]
+name = "bob"
+validator = true
+ws_port = 9955
+
+[[relaychain.nodes]]
+name = "charlie"
+validator = true
+ws_port = 9966
+
+[[parachains]]
+id = 5123
+
+[[parachains.collators]]
+name = "dave"
+ws_port = 9988
+command = "zeta-node"
+
+[[parachains.collators]]
+name = "eve"
+ws_port = 9999
+command = "zeta-node"
