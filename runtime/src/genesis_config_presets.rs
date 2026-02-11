@@ -117,8 +117,11 @@ fn get_testnet_genesis() -> Value {
 /// Provides the JSON representation of predefined genesis config for given `id`.
 pub fn get_preset(id: &PresetId) -> Option<vec::Vec<u8>> {
     let patch = match id.as_ref() {
-        super::DEVNET_PRESET => get_devnet_genesis(),
-        super::TESTNET_PRESET => get_testnet_genesis(),
+        super::DEVNET_PRESET
+        | "dev"
+        | sp_genesis_builder::DEV_RUNTIME_PRESET
+        | sp_genesis_builder::LOCAL_TESTNET_RUNTIME_PRESET => get_devnet_genesis(),
+        super::TESTNET_PRESET | "testnet" => get_testnet_genesis(),
         _ => return None,
     };
     Some(
@@ -131,7 +134,9 @@ pub fn get_preset(id: &PresetId) -> Option<vec::Vec<u8>> {
 /// List of supported presets.
 pub fn preset_names() -> Vec<PresetId> {
     vec![
+        PresetId::from(sp_genesis_builder::DEV_RUNTIME_PRESET),
         PresetId::from(super::DEVNET_PRESET),
+        PresetId::from(sp_genesis_builder::LOCAL_TESTNET_RUNTIME_PRESET),
         PresetId::from(super::TESTNET_PRESET),
     ]
 }

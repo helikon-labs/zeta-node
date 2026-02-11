@@ -35,7 +35,7 @@
 #![allow(missing_docs)]
 #![allow(dead_code)]
 
-use frame_support::{traits::Get, weights::{Weight, constants::RocksDbWeight}};
+use frame::deps::frame_support::{traits::Get, weights::{Weight, constants::RocksDbWeight}};
 use core::marker::PhantomData;
 
 /// Weight functions needed for `{{pallet}}`.
@@ -54,7 +54,7 @@ pub struct SubstrateWeight<T>(PhantomData<T>);
 {{#if (or (eq pallet "frame_system") (eq pallet "frame_system_extensions"))}}
 impl<T: crate::Config> WeightInfo for SubstrateWeight<T> {
 {{else}}
-impl<T: frame_system::Config> WeightInfo for SubstrateWeight<T> {
+impl<T: frame::deps::frame_system::Config> WeightInfo for SubstrateWeight<T> {
 {{/if}}
 	{{#each benchmarks as |benchmark|}}
 	{{#each benchmark.comments as |comment|}}

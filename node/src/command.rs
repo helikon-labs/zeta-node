@@ -49,9 +49,11 @@ impl SubstrateCli for Cli {
 
     fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
         Ok(match id {
-            "dev" | "devnet" | zeta_runtime::DEVNET_PRESET => {
-                Box::new(chain_spec::devnet_chain_spec())
-            }
+            "dev"
+            | "devnet"
+            | sp_genesis_builder::DEV_RUNTIME_PRESET
+            | sp_genesis_builder::LOCAL_TESTNET_RUNTIME_PRESET
+            | zeta_runtime::DEVNET_PRESET => Box::new(chain_spec::devnet_chain_spec()),
             "test" | "testnet" | zeta_runtime::TESTNET_PRESET => {
                 Box::new(chain_spec::testnet_chain_spec())
             }
