@@ -165,7 +165,7 @@ impl_opaque_keys! {
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
     spec_name: alloc::borrow::Cow::Borrowed("zeta-runtime"),
-    impl_name: alloc::borrow::Cow::Borrowed("zeta-runtime"),
+    impl_name: alloc::borrow::Cow::Borrowed("helikon-zeta"),
     authoring_version: 1,
     spec_version: 1,
     impl_version: 0,
@@ -196,12 +196,12 @@ pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 
 // Unit = the base number of indivisible units for balances
-pub const UNIT: Balance = 1_000_000_000_000;
+pub const UNIT: Balance = 1_000_000_000;
 pub const CENTS: Balance = UNIT / 100;
-pub const MILLI_UNIT: Balance = 1_000_000_000;
-pub const MICRO_UNIT: Balance = 1_000_000;
+pub const MILLI_UNIT: Balance = 1_000_000;
+pub const MICRO_UNIT: Balance = 1_000;
 
-/// The existential deposit. Set to 1/10 of the Connected Relay Chain.
+/// The existential deposit.
 pub const EXISTENTIAL_DEPOSIT: Balance = MILLI_UNIT;
 
 /// We assume that ~5% of the block weight is consumed by `on_initialize` handlers. This is

@@ -1,6 +1,7 @@
 use crate::{
-    AccountId, BalancesConfig, CollatorSelectionConfig, ParachainInfoConfig, PolkadotXcmConfig,
-    RuntimeGenesisConfig, SessionConfig, SessionKeys, SudoConfig, EXISTENTIAL_DEPOSIT,
+    AccountId, Balance, BalancesConfig, CollatorSelectionConfig, ParachainInfoConfig,
+    PolkadotXcmConfig, RuntimeGenesisConfig, SessionConfig, SessionKeys, SudoConfig,
+    UNIT as BALANCE_UNIT,
 };
 
 use alloc::{vec, vec::Vec};
@@ -29,28 +30,23 @@ pub fn template_session_keys(keys: AuraId) -> SessionKeys {
 fn get_genesis(
     parachain_id: ParaId,
     root: AccountId,
-    endowed_accounts: Vec<AccountId>,
-    invulnerables: Vec<(AccountId, AuraId)>,
+    balances: Vec<(AccountId, u128)>,
+    authority_candidacy_bond: Balance,
+    authorities: Vec<(AccountId, AuraId)>,
 ) -> Value {
     build_struct_json_patch!(RuntimeGenesisConfig {
-        balances: BalancesConfig {
-            balances: endowed_accounts
-                .iter()
-                .cloned()
-                .map(|k| (k, 1u128 << 60))
-                .collect::<Vec<_>>(),
-        },
+        balances: BalancesConfig { balances },
         parachain_info: ParachainInfoConfig { parachain_id },
         collator_selection: CollatorSelectionConfig {
-            invulnerables: invulnerables
+            invulnerables: authorities
                 .iter()
                 .cloned()
                 .map(|(acc, _)| acc)
                 .collect::<Vec<_>>(),
-            candidacy_bond: EXISTENTIAL_DEPOSIT * 16,
+            candidacy_bond: authority_candidacy_bond,
         },
         session: SessionConfig {
-            keys: invulnerables
+            keys: authorities
                 .into_iter()
                 .map(|(acc, aura)| {
                     (
@@ -69,42 +65,52 @@ fn get_genesis(
 }
 
 fn get_devnet_genesis() -> Value {
+    let root = Sr25519Keyring::Alice.to_account_id();
+    let balances = Sr25519Keyring::well_known()
+        .map(|k| (k.to_account_id(), 1u128 << 60))
+        .collect::<Vec<_>>();
+    let authority_candidacy_bond = 10_000 * BALANCE_UNIT;
+    let authorities = vec![
+        (
+            Sr25519Keyring::Alice.to_account_id(),
+            Sr25519Keyring::Alice.public().into(),
+        ),
+        (
+            Sr25519Keyring::Bob.to_account_id(),
+            Sr25519Keyring::Bob.public().into(),
+        ),
+    ];
     get_genesis(
         PARACHAIN_ID.into(),
-        Sr25519Keyring::Alice.to_account_id(),
-        Sr25519Keyring::well_known()
-            .map(|k| k.to_account_id())
-            .collect(),
-        vec![
-            (
-                Sr25519Keyring::Alice.to_account_id(),
-                Sr25519Keyring::Alice.public().into(),
-            ),
-            (
-                Sr25519Keyring::Bob.to_account_id(),
-                Sr25519Keyring::Bob.public().into(),
-            ),
-        ],
+        root,
+        balances,
+        authority_candidacy_bond,
+        authorities,
     )
 }
 
 fn get_testnet_genesis() -> Value {
+    let root = Sr25519Keyring::Alice.to_account_id();
+    let balances = Sr25519Keyring::well_known()
+        .map(|k| (k.to_account_id(), 1u128 << 60))
+        .collect::<Vec<_>>();
+    let authority_candidacy_bond = 10_000 * BALANCE_UNIT;
+    let authorities = vec![
+        (
+            Sr25519Keyring::Alice.to_account_id(),
+            Sr25519Keyring::Alice.public().into(),
+        ),
+        (
+            Sr25519Keyring::Bob.to_account_id(),
+            Sr25519Keyring::Bob.public().into(),
+        ),
+    ];
     get_genesis(
         PARACHAIN_ID.into(),
-        Sr25519Keyring::Alice.to_account_id(),
-        Sr25519Keyring::well_known()
-            .map(|k| k.to_account_id())
-            .collect(),
-        vec![
-            (
-                Sr25519Keyring::Alice.to_account_id(),
-                Sr25519Keyring::Alice.public().into(),
-            ),
-            (
-                Sr25519Keyring::Bob.to_account_id(),
-                Sr25519Keyring::Bob.public().into(),
-            ),
-        ],
+        root,
+        balances,
+        authority_candidacy_bond,
+        authorities,
     )
 }
 
