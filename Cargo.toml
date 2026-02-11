@@ -4,6 +4,7 @@ edition = "2021"
 homepage = "https://helikon.io"
 license = "GPL-3.0"
 repository = "https://github.com/helikon-labs/zeta-node.git"
+rust-version = "1.93.0"
 version = "0.1.0"
 
 [workspace]
