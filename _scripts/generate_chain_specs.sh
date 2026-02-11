@@ -8,8 +8,8 @@ mkdir -p _chain-spec
 
 SKIP_PALLET_REVIVE_FIXTURES=1 cargo build --release --workspace
 # devnet
-./target/release/zeta-node export-chain-spec --chain=devnet --output ./_chain-spec/zeta_devnet_plain.json
-./target/release/zeta-node export-chain-spec --raw --chain=devnet --output ./_chain-spec/zeta_devnet_raw.json
+./target/release/zeta-node export-chain-spec --chain=devnet --output ./_chainspec/zeta_devnet_plain.json
+./target/release/zeta-node export-chain-spec --raw --chain=devnet --output ./_chainspec/zeta_devnet_raw.json
 # testnet
-./target/release/zeta-node export-chain-spec --chain=testnet --output ./_chain-spec/zeta_testnet_plain.json
-./target/release/zeta-node export-chain-spec --raw --chain=testnet --output ./_chain-spec/zeta_testnet_raw.json
+./target/release/zeta-node export-chain-spec --chain=testnet --output ./_chainspec/zeta_testnet_plain.json
+./target/release/zeta-node export-chain-spec --raw --chain=testnet --output ./_chainspec/zeta_testnet_raw.json
