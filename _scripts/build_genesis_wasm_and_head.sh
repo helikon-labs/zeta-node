@@ -4,10 +4,20 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 cd "$SCRIPT_DIR" || exit 1
 cd ..
-mkdir -p _wasm
+mkdir -p ./_deployment
 
-SKIP_PALLET_REVIVE_FIXTURES=1 cargo build --release --workspace
-#./target/release/zeta-node export-genesis-wasm --chain=testnet ./_deployment/zeta_testnet.wasm
-./target/release/zeta-node export-genesis-wasm --raw --chain=testnet ./_deployment/zeta_testnet.wasm
-#./target/release/zeta-node export-genesis-head --chain=testnet ./_deployment/zeta_testnet.head
-./target/release/zeta-node export-genesis-head --raw --chain=testnet ./_deployment/zeta_testnet.head
+SKIP_PALLET_REVIVE_FIXTURES=1 cargo build --profile production -p zeta-node
+./target/production/zeta-node export-genesis-wasm \
+    --chain=testnet \
+    ./_deployment/zeta_testnet.wasm
+./target/production/zeta-node export-genesis-wasm \
+    --raw \
+    --chain=testnet \
+    ./_deployment/zeta_testnet_raw.wasm
+./target/production/zeta-node export-genesis-head \
+    --chain=testnet \
+    ./_deployment/zeta_testnet.head
+./target/production/zeta-node export-genesis-head \
+    --raw \
+    --chain=testnet \
+    ./_deployment/zeta_testnet_raw.head

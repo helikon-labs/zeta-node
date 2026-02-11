@@ -25,7 +25,7 @@
 //! WASM-EXECUTION: `Compiled`, CHAIN: `Some("zeta_testnet")`, DB CACHE: `1024`
 
 // Executed Command:
-// ./target/release/zeta-node
+// ./target/production/zeta-node
 // benchmark
 // pallet
 // --chain=zeta_testnet
@@ -62,8 +62,8 @@ impl<T: frame::deps::frame_system::Config> WeightInfo for SubstrateWeight<T> {
 		// Proof Size summary in bytes:
 		//  Measured:  `0`
 		//  Estimated: `0`
-		// Minimum execution time: 3_557_000 picoseconds.
-		Weight::from_parts(3_727_000, 0)
+		// Minimum execution time: 2_725_000 picoseconds.
+		Weight::from_parts(2_845_000, 0)
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
 	/// Storage: `Zeta::Value` (r:1 w:1)
@@ -72,8 +72,8 @@ impl<T: frame::deps::frame_system::Config> WeightInfo for SubstrateWeight<T> {
 		// Proof Size summary in bytes:
 		//  Measured:  `69`
 		//  Estimated: `1489`
-		// Minimum execution time: 4_048_000 picoseconds.
-		Weight::from_parts(4_188_000, 1489)
+		// Minimum execution time: 3_487_000 picoseconds.
+		Weight::from_parts(3_587_000, 1489)
 			.saturating_add(T::DbWeight::get().reads(1_u64))
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
@@ -87,8 +87,8 @@ impl WeightInfo for () {
 		// Proof Size summary in bytes:
 		//  Measured:  `0`
 		//  Estimated: `0`
-		// Minimum execution time: 3_557_000 picoseconds.
-		Weight::from_parts(3_727_000, 0)
+		// Minimum execution time: 2_725_000 picoseconds.
+		Weight::from_parts(2_845_000, 0)
 			.saturating_add(RocksDbWeight::get().writes(1_u64))
 	}
 	/// Storage: `Zeta::Value` (r:1 w:1)
@@ -97,8 +97,8 @@ impl WeightInfo for () {
 		// Proof Size summary in bytes:
 		//  Measured:  `69`
 		//  Estimated: `1489`
-		// Minimum execution time: 4_048_000 picoseconds.
-		Weight::from_parts(4_188_000, 1489)
+		// Minimum execution time: 3_487_000 picoseconds.
+		Weight::from_parts(3_587_000, 1489)
 			.saturating_add(RocksDbWeight::get().reads(1_u64))
 			.saturating_add(RocksDbWeight::get().writes(1_u64))
 	}
