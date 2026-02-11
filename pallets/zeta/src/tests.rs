@@ -1,23 +1,43 @@
-use crate::{mock::*, Error, Something};
+use crate::{mock_runtime, Error, Value};
 use frame::testing_prelude::*;
 
 #[test]
 fn it_works_for_default_value() {
-    new_test_ext().execute_with(|| {
-        // Dispatch a signed extrinsic.
-        assert_ok!(Template::do_something(RuntimeOrigin::signed(1), 42));
-        // Read pallet storage and assert an expected result.
-        assert_eq!(Something::<Test>::get().map(|v| v.block_number), Some(42));
+    mock_runtime::new_test_ext().execute_with(|| {
+        assert_ok!(mock_runtime::Zeta::store_value(
+            mock_runtime::RuntimeOrigin::signed(1),
+            42u32
+        ));
+        assert_eq!(
+            Value::<mock_runtime::Test>::get().map(|v| v.value),
+            Some(42u32)
+        );
     });
 }
 
 #[test]
 fn correct_error_for_none_value() {
-    new_test_ext().execute_with(|| {
-        // Ensure the expected error is thrown when no value is present.
+    mock_runtime::new_test_ext().execute_with(|| {
         assert_noop!(
-            Template::cause_error(RuntimeOrigin::signed(1)),
-            Error::<Test>::NoneValue
+            mock_runtime::Zeta::increment_value(mock_runtime::RuntimeOrigin::signed(1)),
+            Error::<mock_runtime::Test>::NoneValue,
+        );
+    });
+}
+
+#[test]
+fn correct_error_for_increment_overflow() {
+    mock_runtime::new_test_ext().execute_with(|| {
+        assert_ok!(mock_runtime::Zeta::store_value(
+            mock_runtime::RuntimeOrigin::signed(1),
+            u32::MAX - 1,
+        ));
+        assert_ok!(mock_runtime::Zeta::increment_value(
+            mock_runtime::RuntimeOrigin::signed(1)
+        ));
+        assert_noop!(
+            mock_runtime::Zeta::increment_value(mock_runtime::RuntimeOrigin::signed(1)),
+            Error::<mock_runtime::Test>::StorageOverflow,
         );
     });
 }

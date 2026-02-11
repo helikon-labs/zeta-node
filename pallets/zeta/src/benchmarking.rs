@@ -6,35 +6,35 @@ use frame::{deps::frame_benchmarking::v2::*, prelude::*};
 mod benchmarks {
     use super::*;
     #[cfg(test)]
-    use crate::pallet::Pallet as Template;
+    use crate::pallet::Pallet;
     use frame_system::RawOrigin;
 
     #[benchmark]
-    fn do_something() {
+    fn store_value() {
         let caller: T::AccountId = whitelisted_caller();
+        let value: u32 = 100;
         #[extrinsic_call]
-        do_something(RawOrigin::Signed(caller), 100);
-
-        assert_eq!(
-            Something::<T>::get().map(|v| v.block_number),
-            Some(100u32.into())
-        );
+        store_value(RawOrigin::Signed(caller), value);
+        assert_eq!(Value::<T>::get().map(|v| v.value), Some(value.into()));
     }
 
     #[benchmark]
-    fn cause_error() {
-        Something::<T>::put(CompositeStruct {
-            block_number: 100u32.into(),
-        });
+    fn increment_value() {
+        let value: u32 = 100;
+        let incremented_value: u32 = 101;
+        Value::<T>::put(CompositeStruct { value });
         let caller: T::AccountId = whitelisted_caller();
         #[extrinsic_call]
-        cause_error(RawOrigin::Signed(caller));
-
+        increment_value(RawOrigin::Signed(caller));
         assert_eq!(
-            Something::<T>::get().map(|v| v.block_number),
-            Some(101u32.into())
+            Value::<T>::get().map(|v| v.value),
+            Some(incremented_value.into())
         );
     }
 
-    impl_benchmark_test_suite!(Template, crate::mock::new_test_ext(), crate::mock::Test);
+    impl_benchmark_test_suite!(
+        Pallet,
+        crate::mock_runtime::new_test_ext(),
+        crate::mock_runtime::Test,
+    );
 }
