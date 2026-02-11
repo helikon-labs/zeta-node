@@ -21,17 +21,16 @@ const SAFE_XCM_VERSION: u32 = xcm::prelude::XCM_VERSION;
 pub const PARACHAIN_ID: u32 = 5123;
 
 /// Generate the session keys from individual elements.
-///
 /// The input must be a tuple of individual keys (a single arg for now since we have just one key).
 pub fn template_session_keys(keys: AuraId) -> SessionKeys {
     SessionKeys { aura: keys }
 }
 
-fn testnet_genesis(
-    invulnerables: Vec<(AccountId, AuraId)>,
-    endowed_accounts: Vec<AccountId>,
+fn get_genesis(
+    parachain_id: ParaId,
     root: AccountId,
-    id: ParaId,
+    endowed_accounts: Vec<AccountId>,
+    invulnerables: Vec<(AccountId, AuraId)>,
 ) -> Value {
     build_struct_json_patch!(RuntimeGenesisConfig {
         balances: BalancesConfig {
@@ -41,7 +40,7 @@ fn testnet_genesis(
                 .map(|k| (k, 1u128 << 60))
                 .collect::<Vec<_>>(),
         },
-        parachain_info: ParachainInfoConfig { parachain_id: id },
+        parachain_info: ParachainInfoConfig { parachain_id },
         collator_selection: CollatorSelectionConfig {
             invulnerables: invulnerables
                 .iter()
@@ -69,9 +68,13 @@ fn testnet_genesis(
     })
 }
 
-fn local_testnet_genesis() -> Value {
-    testnet_genesis(
-        // initial collators.
+fn get_devnet_genesis() -> Value {
+    get_genesis(
+        PARACHAIN_ID.into(),
+        Sr25519Keyring::Alice.to_account_id(),
+        Sr25519Keyring::well_known()
+            .map(|k| k.to_account_id())
+            .collect(),
         vec![
             (
                 Sr25519Keyring::Alice.to_account_id(),
@@ -82,17 +85,16 @@ fn local_testnet_genesis() -> Value {
                 Sr25519Keyring::Bob.public().into(),
             ),
         ],
-        Sr25519Keyring::well_known()
-            .map(|k| k.to_account_id())
-            .collect(),
-        Sr25519Keyring::Alice.to_account_id(),
-        PARACHAIN_ID.into(),
     )
 }
 
-fn development_config_genesis() -> Value {
-    testnet_genesis(
-        // initial collators.
+fn get_testnet_genesis() -> Value {
+    get_genesis(
+        PARACHAIN_ID.into(),
+        Sr25519Keyring::Alice.to_account_id(),
+        Sr25519Keyring::well_known()
+            .map(|k| k.to_account_id())
+            .collect(),
         vec![
             (
                 Sr25519Keyring::Alice.to_account_id(),
@@ -103,19 +105,14 @@ fn development_config_genesis() -> Value {
                 Sr25519Keyring::Bob.public().into(),
             ),
         ],
-        Sr25519Keyring::well_known()
-            .map(|k| k.to_account_id())
-            .collect(),
-        Sr25519Keyring::Alice.to_account_id(),
-        PARACHAIN_ID.into(),
     )
 }
 
 /// Provides the JSON representation of predefined genesis config for given `id`.
 pub fn get_preset(id: &PresetId) -> Option<vec::Vec<u8>> {
     let patch = match id.as_ref() {
-        sp_genesis_builder::LOCAL_TESTNET_RUNTIME_PRESET => local_testnet_genesis(),
-        sp_genesis_builder::DEV_RUNTIME_PRESET => development_config_genesis(),
+        super::DEVNET_PRESET => get_devnet_genesis(),
+        super::TESTNET_PRESET => get_testnet_genesis(),
         _ => return None,
     };
     Some(
@@ -128,7 +125,7 @@ pub fn get_preset(id: &PresetId) -> Option<vec::Vec<u8>> {
 /// List of supported presets.
 pub fn preset_names() -> Vec<PresetId> {
     vec![
-        PresetId::from(sp_genesis_builder::DEV_RUNTIME_PRESET),
-        PresetId::from(sp_genesis_builder::LOCAL_TESTNET_RUNTIME_PRESET),
+        PresetId::from(super::DEVNET_PRESET),
+        PresetId::from(super::TESTNET_PRESET),
     ]
 }

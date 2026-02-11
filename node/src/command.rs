@@ -16,17 +16,6 @@ use crate::{
     service::new_partial,
 };
 
-fn load_spec(id: &str) -> std::result::Result<Box<dyn ChainSpec>, String> {
-    Ok(match id {
-        "dev" => Box::new(chain_spec::development_chain_spec()),
-        "template-rococo" => Box::new(chain_spec::local_chain_spec()),
-        "" | "local" => Box::new(chain_spec::local_chain_spec()),
-        path => Box::new(chain_spec::ChainSpec::from_json_file(
-            std::path::PathBuf::from(path),
-        )?),
-    })
-}
-
 impl SubstrateCli for Cli {
     fn impl_name() -> String {
         "Zeta Node".into()
@@ -55,11 +44,21 @@ impl SubstrateCli for Cli {
     }
 
     fn copyright_start_year() -> i32 {
-        2020
+        2026
     }
 
     fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
-        load_spec(id)
+        Ok(match id {
+            "dev" | "devnet" | zeta_runtime::DEVNET_PRESET => {
+                Box::new(chain_spec::devnet_chain_spec())
+            }
+            "test" | "testnet" | zeta_runtime::TESTNET_PRESET => {
+                Box::new(chain_spec::testnet_chain_spec())
+            }
+            path => Box::new(chain_spec::ChainSpec::from_json_file(
+                std::path::PathBuf::from(path),
+            )?),
+        })
     }
 }
 

@@ -5,10 +5,12 @@ use sc_service::ChainType;
 use serde::{Deserialize, Serialize};
 use zeta_runtime as runtime;
 
-/// Specialized `ChainSpec` for the normal parachain runtime.
 pub type ChainSpec = sc_service::GenericChainSpec<Extensions>;
-/// The relay chain that you want to configure this parachain to connect to.
-pub const RELAY_CHAIN: &str = "rococo-local";
+pub const ROCOCO_LOCAL: &str = "rococo-local";
+pub const PASEO: &str = "paseo";
+pub const TOKEN_SYMBOL: &str = "ZETA";
+pub const TOKEN_DECIMALS: u32 = 9;
+pub const SS58_FORMAT: u32 = 42;
 
 /// The extensions for the [`ChainSpec`].
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ChainSpecGroup, ChainSpecExtension)]
@@ -25,45 +27,40 @@ impl Extensions {
     }
 }
 
-pub fn development_chain_spec() -> ChainSpec {
-    // Give your base currency a unit name and decimal places
+fn get_chain_properties() -> sc_chain_spec::Properties {
     let mut properties = sc_chain_spec::Properties::new();
-    properties.insert("tokenSymbol".into(), "ZETA".into());
-    properties.insert("tokenDecimals".into(), 9.into());
-    properties.insert("ss58Format".into(), 42.into());
+    properties.insert("tokenSymbol".into(), TOKEN_SYMBOL.into());
+    properties.insert("tokenDecimals".into(), TOKEN_DECIMALS.into());
+    properties.insert("ss58Format".into(), SS58_FORMAT.into());
+    properties
+}
 
+pub fn devnet_chain_spec() -> ChainSpec {
     ChainSpec::builder(
         runtime::WASM_BINARY.expect("WASM binary was not built, please build it!"),
         Extensions {
-            relay_chain: RELAY_CHAIN.into(),
+            relay_chain: ROCOCO_LOCAL.into(),
         },
     )
     .with_name("Zeta Devnet")
-    .with_id("dev")
+    .with_id(zeta_runtime::DEVNET_PRESET)
     .with_chain_type(ChainType::Development)
+    .with_properties(get_chain_properties())
     .with_genesis_config_preset_name(sp_genesis_builder::DEV_RUNTIME_PRESET)
-    .with_properties(properties)
     .build()
 }
 
-pub fn local_chain_spec() -> ChainSpec {
-    // Give your base currency a unit name and decimal places
-    let mut properties = sc_chain_spec::Properties::new();
-    properties.insert("tokenSymbol".into(), "ZETA".into());
-    properties.insert("tokenDecimals".into(), 10.into());
-    properties.insert("ss58Format".into(), 42.into());
-
+pub fn testnet_chain_spec() -> ChainSpec {
     ChainSpec::builder(
         runtime::WASM_BINARY.expect("WASM binary was not built, please build it!"),
         Extensions {
-            relay_chain: RELAY_CHAIN.into(),
+            relay_chain: PASEO.into(),
         },
     )
-    .with_name("Zeta Local Testnet")
-    .with_id("local_testnet")
-    .with_chain_type(ChainType::Local)
-    .with_genesis_config_preset_name(sc_chain_spec::LOCAL_TESTNET_RUNTIME_PRESET)
-    .with_protocol_id("template-local")
-    .with_properties(properties)
+    .with_name("Zeta Testnet")
+    .with_id(zeta_runtime::TESTNET_PRESET)
+    .with_chain_type(ChainType::Live)
+    .with_properties(get_chain_properties())
+    .with_genesis_config_preset_name(sp_genesis_builder::DEV_RUNTIME_PRESET)
     .build()
 }

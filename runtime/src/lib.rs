@@ -39,6 +39,9 @@ pub use sp_runtime::{MultiAddress, Perbill, Permill};
 
 use weights::ExtrinsicBaseWeight;
 
+pub const DEVNET_PRESET: &str = "zeta_devnet";
+pub const TESTNET_PRESET: &str = "zeta_testnet";
+
 /// Alias to 512-bit hash when used in the context of a transaction signature on the chain.
 pub type Signature = MultiSignature;
 
