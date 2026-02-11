@@ -1,5 +1,4 @@
-//! Benchmarking setup for pallet-template
-
+//! Benchmarking setup for the Zeta pallet.
 use super::*;
 use frame::{deps::frame_benchmarking::v2::*, prelude::*};
 

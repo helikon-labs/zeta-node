@@ -308,9 +308,9 @@ mod runtime {
     #[runtime::pallet_index(33)]
     pub type MessageQueue = pallet_message_queue;
 
-    // Template
+    // zeta
     #[runtime::pallet_index(50)]
-    pub type ZetaPallet = pallet_zeta;
+    pub type Zeta = pallet_zeta;
 }
 
 #[docify::export(register_validate_block)]
