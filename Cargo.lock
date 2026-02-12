@@ -10689,7 +10689,7 @@ dependencies = [
 
 [[package]]
 name = "pallet-zeta"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "parity-scale-codec",
  "polkadot-sdk-frame",
@@ -20901,7 +20901,7 @@ dependencies = [
 
 [[package]]
 name = "zeta-node"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap",
  "color-print",
@@ -20918,7 +20918,7 @@ dependencies = [
 
 [[package]]
 name = "zeta-runtime"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cumulus-pallet-parachain-system",
  "docify 0.4.1",
