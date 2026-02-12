@@ -61,6 +61,6 @@ pub fn testnet_chain_spec() -> ChainSpec {
     .with_id(zeta_runtime::TESTNET_PRESET)
     .with_chain_type(ChainType::Live)
     .with_properties(get_chain_properties())
-    .with_genesis_config_preset_name(sp_genesis_builder::DEV_RUNTIME_PRESET)
+    .with_genesis_config_preset_name(zeta_runtime::TESTNET_PRESET)
     .build()
 }
