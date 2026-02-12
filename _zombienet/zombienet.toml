@@ -24,9 +24,9 @@ chain = "zeta_devnet"
 [[parachains.collators]]
 name = "dave"
 ws_port = 9988
-command = "zeta-node"
+command = "../target/release/zeta-node"
 
 [[parachains.collators]]
 name = "eve"
 ws_port = 9999
-command = "zeta-node"
+command = "../target/release/zeta-node"

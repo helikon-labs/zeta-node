@@ -6,7 +6,9 @@ use crate::{
 
 use alloc::{vec, vec::Vec};
 
-use polkadot_sdk::{staging_xcm as xcm, *};
+use polkadot_sdk::{
+    sp_application_crypto::Ss58Codec, sp_runtime::AccountId32, staging_xcm as xcm, *,
+};
 
 use cumulus_primitives_core::ParaId;
 use frame_support::build_struct_json_patch;
@@ -90,20 +92,44 @@ fn get_devnet_genesis() -> Value {
 }
 
 fn get_testnet_genesis() -> Value {
-    let root = Sr25519Keyring::Alice.to_account_id();
-    let balances = Sr25519Keyring::well_known()
-        .map(|k| (k.to_account_id(), 1u128 << 60))
-        .collect::<Vec<_>>();
+    // collator #1
+    let collator_1_grandpa =
+        AccountId32::from_ss58check("16AYbHs4itBR8YHjkWwNaXa97PSmG197KqQ4VFc9U8BnVLv").unwrap();
+    let collator_1_aura =
+        AuraId::from_ss58check("15SB1PxkgzYvGZpGQgV41wSvG8yEqwvthrL3JtnMHG9jEcrK").unwrap();
+    // collator #2
+    let collator_2_grandpa =
+        AccountId32::from_ss58check("13FqsCdzLXw471uZNjEmh4EuoMfMt4HsTfVovb8aAFCX6M4S").unwrap();
+    let collator_2_aura =
+        AuraId::from_ss58check("14Q4H1184DakxsevWh8nxfVAzLT6JRuM76pjK82iryVo4NQz").unwrap();
+    // collator #3
+    let collator_3_grandpa =
+        AccountId32::from_ss58check("12Rq4TYzrcRvF3GemM6dsWu8cvzbdSH4bif6ZkWiHboanfs8").unwrap();
+    let collator_3_aura =
+        AuraId::from_ss58check("12zs9jsgABc9DFS2bojakSzKkLiCvg2Kwi4YiuXoiprpGQTW").unwrap();
+
+    let root =
+        AccountId::from_ss58check("16GGZkN7h6X2s3JCAhfJBj5ErPeLVpKSeoENXGFA8cFg5q34").unwrap();
+    let faucet =
+        AccountId::from_ss58check("121LpfMRyitLS26AMiZZL7hu9jcRrP8cW12Fc3ehVpCcjCoj").unwrap();
+    let developer =
+        AccountId::from_ss58check("15fTH34bbKGMUjF1bLmTqxPYgpg481imThwhWcQfCyktyBzL").unwrap();
+
+    let million_unit = 1_000_000 * BALANCE_UNIT;
+    let balances = vec![
+        (root.clone(), 100 * million_unit),
+        (faucet, 1_000 * million_unit),
+        (developer, million_unit),
+        (collator_1_grandpa.clone(), million_unit),
+        (collator_2_grandpa.clone(), million_unit),
+        (collator_3_grandpa.clone(), million_unit),
+    ];
     let authority_candidacy_bond = 10_000 * BALANCE_UNIT;
+
     let authorities = vec![
-        (
-            Sr25519Keyring::Alice.to_account_id(),
-            Sr25519Keyring::Alice.public().into(),
-        ),
-        (
-            Sr25519Keyring::Bob.to_account_id(),
-            Sr25519Keyring::Bob.public().into(),
-        ),
+        (collator_1_grandpa, collator_1_aura),
+        (collator_2_grandpa, collator_2_aura),
+        (collator_3_grandpa, collator_3_aura),
     ];
     get_genesis(
         PARACHAIN_ID.into(),
