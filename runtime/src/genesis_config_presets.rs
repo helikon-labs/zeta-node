@@ -119,6 +119,7 @@ pub fn get_preset(id: &PresetId) -> Option<vec::Vec<u8>> {
     let patch = match id.as_ref() {
         super::DEVNET_PRESET
         | "dev"
+        | ""
         | sp_genesis_builder::DEV_RUNTIME_PRESET
         | sp_genesis_builder::LOCAL_TESTNET_RUNTIME_PRESET => get_devnet_genesis(),
         super::TESTNET_PRESET | "testnet" => get_testnet_genesis(),

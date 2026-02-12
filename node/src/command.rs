@@ -18,7 +18,7 @@ use crate::{
 
 impl SubstrateCli for Cli {
     fn impl_name() -> String {
-        "Zeta Node".into()
+        "helikon-zeta".into()
     }
 
     fn impl_version() -> String {
@@ -49,7 +49,8 @@ impl SubstrateCli for Cli {
 
     fn load_spec(&self, id: &str) -> std::result::Result<Box<dyn sc_service::ChainSpec>, String> {
         Ok(match id {
-            "dev"
+            ""
+            | "dev"
             | "devnet"
             | sp_genesis_builder::DEV_RUNTIME_PRESET
             | sp_genesis_builder::LOCAL_TESTNET_RUNTIME_PRESET
@@ -66,7 +67,7 @@ impl SubstrateCli for Cli {
 
 impl SubstrateCli for RelayChainCli {
     fn impl_name() -> String {
-        "Zeta Node".into()
+        "polkadot-cli".into()
     }
 
     fn impl_version() -> String {
@@ -88,7 +89,7 @@ impl SubstrateCli for RelayChainCli {
     }
 
     fn support_url() -> String {
-        "https://github.com/helikon-labs/zeta-node/issues/new".into()
+        "https://github.com/paritytech/polkadot-sdk/issues/new".into()
     }
 
     fn copyright_start_year() -> i32 {

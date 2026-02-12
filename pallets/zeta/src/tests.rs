@@ -2,7 +2,7 @@ use crate::{mock_runtime, Error, Value};
 use frame::testing_prelude::*;
 
 #[test]
-fn it_works_for_default_value() {
+fn store_value_works() {
     mock_runtime::new_test_ext().execute_with(|| {
         assert_ok!(mock_runtime::Zeta::store_value(
             mock_runtime::RuntimeOrigin::signed(1),
@@ -16,7 +16,24 @@ fn it_works_for_default_value() {
 }
 
 #[test]
-fn correct_error_for_none_value() {
+fn increment_value_works() {
+    mock_runtime::new_test_ext().execute_with(|| {
+        assert_ok!(mock_runtime::Zeta::store_value(
+            mock_runtime::RuntimeOrigin::signed(1),
+            u32::MAX - 1,
+        ));
+        assert_ok!(mock_runtime::Zeta::increment_value(
+            mock_runtime::RuntimeOrigin::signed(1)
+        ));
+        assert_eq!(
+            Value::<mock_runtime::Test>::get().map(|v| v.value),
+            Some(u32::MAX)
+        );
+    });
+}
+
+#[test]
+fn correct_error_for_increment_none_value() {
     mock_runtime::new_test_ext().execute_with(|| {
         assert_noop!(
             mock_runtime::Zeta::increment_value(mock_runtime::RuntimeOrigin::signed(1)),

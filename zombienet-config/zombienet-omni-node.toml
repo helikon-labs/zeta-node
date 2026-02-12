@@ -14,7 +14,7 @@ ws_port = 9955
 
 [[parachains]]
 id = 5123
-chain_spec_path = "./chain_spec.json"
+chain_spec_path = "../_chainspec/zeta_devnet_plain.json"
 
 [parachains.collator]
 name = "charlie"

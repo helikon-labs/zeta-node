@@ -1,4 +1,4 @@
-//! Substrate Parachain Node Template CLI
+//! Zeta Node CLI
 
 #![warn(missing_docs)]
 

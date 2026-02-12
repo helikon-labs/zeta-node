@@ -13,5 +13,5 @@ SKIP_PALLET_REVIVE_FIXTURES=1 cargo build --profile production -p zeta-node --fe
     --extrinsic=* \
     --steps=50 \
     --repeat=20 \
-    --template=./_scripts/frame_weight_template.hbs \
+    --template=./_scripts/frame-weight-template.hbs \
     --output ./pallets/zeta/src/weights.rs

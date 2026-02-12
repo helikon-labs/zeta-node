@@ -8,16 +8,16 @@ mkdir -p ./_deployment
 
 SKIP_PALLET_REVIVE_FIXTURES=1 cargo build --profile production -p zeta-node
 ./target/production/zeta-node export-genesis-wasm \
-    --chain=testnet \
-    ./_deployment/zeta_testnet.wasm
+    --chain=zeta_testnet \
+    ./_deployment/zeta-testnet.wasm
 ./target/production/zeta-node export-genesis-wasm \
     --raw \
-    --chain=testnet \
-    ./_deployment/zeta_testnet_raw.wasm
+    --chain=zeta_testnet \
+    ./_deployment/zeta-testnet-raw.wasm
 ./target/production/zeta-node export-genesis-head \
-    --chain=testnet \
-    ./_deployment/zeta_testnet.head
+    --chain=zeta_testnet \
+    ./_deployment/zeta-testnet.head
 ./target/production/zeta-node export-genesis-head \
     --raw \
-    --chain=testnet \
-    ./_deployment/zeta_testnet_raw.head
+    --chain=zeta_testnet \
+    ./_deployment/zeta-testnet-raw.head
