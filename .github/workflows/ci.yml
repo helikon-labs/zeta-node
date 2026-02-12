@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest] #[ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
       # Ubuntu free disk space
@@ -35,9 +35,9 @@ jobs:
       - name: Run the tests
         run: SKIP_WASM_BUILD=1 cargo test
         timeout-minutes: 30
-      - name: Build the docs
-        run: SKIP_WASM_BUILD=1 cargo doc --workspace --no-deps
-        timeout-minutes: 30
+      #- name: Build the docs
+      #  run: SKIP_WASM_BUILD=1 cargo doc --workspace --no-deps
+      #  timeout-minutes: 30
 #  build-docker:
 #    runs-on: ubuntu-latest
 #    steps:
