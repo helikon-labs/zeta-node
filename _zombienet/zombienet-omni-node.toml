@@ -18,7 +18,7 @@ validator = true
 ws_port = 9966
 
 [[parachains]]
-id = 5127
+id = 5128
 chain_spec_path = "../_chainspec/zeta-devnet-plain.json"
 
 [[parachains.collators]]
