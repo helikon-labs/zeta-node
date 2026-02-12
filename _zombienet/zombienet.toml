@@ -19,7 +19,7 @@ ws_port = 9966
 
 [[parachains]]
 id = 5123
-chain = "zeta-devnet"
+chain = "zeta_devnet"
 
 [[parachains.collators]]
 name = "dave"

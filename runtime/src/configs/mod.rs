@@ -69,7 +69,7 @@ parameter_types! {
         })
         .avg_block_initialization(AVERAGE_ON_INITIALIZE_RATIO)
         .build_or_panic();
-    pub const SS58Prefix: u16 = 42;
+    pub const SS58Prefix: u16 = 0;
 }
 
 /// All migrations of the runtime, aside from the ones declared in the pallets.

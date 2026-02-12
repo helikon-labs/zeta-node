@@ -12,11 +12,21 @@ name = "bob"
 validator = true
 ws_port = 9955
 
+[[relaychain.nodes]]
+name = "charlie"
+validator = true
+ws_port = 9966
+
 [[parachains]]
 id = 5123
-chain_spec_path = "../_chainspec/zeta_devnet_plain.json"
+chain_spec_path = "../_chainspec/zeta-devnet-plain.json"
 
-[parachains.collator]
-name = "charlie"
+[[parachains.collators]]
+name = "dave"
 ws_port = 9988
+command = "polkadot-omni-node"
+
+[[parachains.collators]]
+name = "eve"
+ws_port = 9999
 command = "polkadot-omni-node"

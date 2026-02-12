@@ -10,7 +10,7 @@ pub const ROCOCO_LOCAL: &str = "rococo-local";
 pub const PASEO: &str = "paseo";
 pub const TOKEN_SYMBOL: &str = "ZETA";
 pub const TOKEN_DECIMALS: u32 = 9;
-pub const SS58_FORMAT: u32 = 42;
+pub const SS58_FORMAT: u32 = 0;
 
 /// The extensions for the [`ChainSpec`].
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ChainSpecGroup, ChainSpecExtension)]

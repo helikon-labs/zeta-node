@@ -10,6 +10,13 @@ runs:
         sudo apt install -y \
           protobuf-compiler \
           llvm-dev libclang-dev clang
+        rustup update
         rustup target add wasm32-unknown-unknown
+        rustup target add wasm32v1-none
         rustup component add rustfmt clippy rust-src
+        rustup default nightly
+        rustup target add wasm32-unknown-unknown
+        rustup target add wasm32v1-none
+        rustup component add rustfmt clippy rust-src
+        rustup default stable
       shell: bash

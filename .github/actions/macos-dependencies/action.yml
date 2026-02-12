@@ -13,5 +13,6 @@ runs:
         echo "LIBCLANG_PATH=$LLVM_PATH/lib" >> $GITHUB_ENV
         echo "LLVM_CONFIG_PATH=$LLVM_PATH/bin/llvm-config" >> $GITHUB_ENV
         rustup target add wasm32-unknown-unknown --toolchain stable-aarch64-apple-darwin
+        rustup target add wasm32v1-none --toolchain stable-aarch64-apple-darwin
         rustup component add rust-src --toolchain stable-aarch64-apple-darwin
       shell: sh
