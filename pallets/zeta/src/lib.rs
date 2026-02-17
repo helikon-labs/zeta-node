@@ -92,5 +92,23 @@ pub mod pallet {
                 }
             }
         }
+
+        /// Decrement the stored value.
+        #[pallet::call_index(2)]
+        #[pallet::weight(T::WeightInfo::decrement_value())]
+        pub fn decrement_value(origin: OriginFor<T>) -> DispatchResultWithPostInfo {
+            let _who = ensure_signed(origin)?;
+            match <Value<T>>::get() {
+                None => Err(Error::<T>::NoneValue)?,
+                Some(mut old) => {
+                    old.value = old
+                        .value
+                        .checked_sub(1)
+                        .ok_or(Error::<T>::StorageOverflow)?;
+                    <Value<T>>::put(old);
+                    Ok(().into())
+                }
+            }
+        }
     }
 }

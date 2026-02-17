@@ -51,6 +51,7 @@ use core::marker::PhantomData;
 pub trait WeightInfo {
 	fn store_value() -> Weight;
 	fn increment_value() -> Weight;
+	fn decrement_value() -> Weight;
 }
 
 /// Weights for `pallet_zeta` using the Substrate node and recommended hardware.
@@ -77,6 +78,17 @@ impl<T: frame::deps::frame_system::Config> WeightInfo for SubstrateWeight<T> {
 			.saturating_add(T::DbWeight::get().reads(1_u64))
 			.saturating_add(T::DbWeight::get().writes(1_u64))
 	}
+	/// Storage: `Zeta::Value` (r:1 w:1)
+	/// Proof: `Zeta::Value` (`max_values`: Some(1), `max_size`: Some(4), added: 499, mode: `MaxEncodedLen`)
+	fn decrement_value() -> Weight {
+		// Proof Size summary in bytes:
+		//  Measured:  `69`
+		//  Estimated: `1489`
+		// Minimum execution time: 3_456_000 picoseconds.
+		Weight::from_parts(3_587_000, 1489)
+			.saturating_add(T::DbWeight::get().reads(1_u64))
+			.saturating_add(T::DbWeight::get().writes(1_u64))
+	}
 }
 
 // For backwards compatibility and tests.
@@ -94,6 +106,17 @@ impl WeightInfo for () {
 	/// Storage: `Zeta::Value` (r:1 w:1)
 	/// Proof: `Zeta::Value` (`max_values`: Some(1), `max_size`: Some(4), added: 499, mode: `MaxEncodedLen`)
 	fn increment_value() -> Weight {
+		// Proof Size summary in bytes:
+		//  Measured:  `69`
+		//  Estimated: `1489`
+		// Minimum execution time: 3_456_000 picoseconds.
+		Weight::from_parts(3_587_000, 1489)
+			.saturating_add(RocksDbWeight::get().reads(1_u64))
+			.saturating_add(RocksDbWeight::get().writes(1_u64))
+	}
+	/// Storage: `Zeta::Value` (r:1 w:1)
+	/// Proof: `Zeta::Value` (`max_values`: Some(1), `max_size`: Some(4), added: 499, mode: `MaxEncodedLen`)
+	fn decrement_value() -> Weight {
 		// Proof Size summary in bytes:
 		//  Measured:  `69`
 		//  Estimated: `1489`
