@@ -228,7 +228,7 @@ impl cumulus_pallet_aura_ext::Config for Runtime {}
 parameter_types! {
     pub LocalFeeAssetId: AssetId = AssetId(xcm_config::NativeLocation::get());
     /// The asset ID for the asset that we use to pay for message delivery fees.
-    pub FeeAssetId: AssetId = AssetId(xcm_config::RelayLocation::get());
+    pub RelayFeeAssetId: AssetId = AssetId(xcm_config::RelayLocation::get());
     /// The base fee for the message delivery fees.
     pub const ToSiblingBaseDeliveryFee: u128 = CENTS.saturating_mul(3);
     pub const ToParentBaseDeliveryFee: u128 = CENTS.saturating_mul(3);
@@ -236,7 +236,7 @@ parameter_types! {
 
 /// The price for delivering XCM messages to sibling parachains.
 pub type PriceForSiblingParachainDelivery =
-    ExponentialPrice<FeeAssetId, ToSiblingBaseDeliveryFee, TransactionByteFee, XcmpQueue>;
+    ExponentialPrice<LocalFeeAssetId, ToSiblingBaseDeliveryFee, TransactionByteFee, XcmpQueue>;
 
 /// The price for delivering XCM messages to relay chain.
 pub type PriceForParentDelivery =
