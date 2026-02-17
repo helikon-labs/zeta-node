@@ -226,6 +226,7 @@ impl pallet_message_queue::Config for Runtime {
 impl cumulus_pallet_aura_ext::Config for Runtime {}
 
 parameter_types! {
+    pub LocalFeeAssetId: AssetId = AssetId(xcm_config::NativeLocation::get());
     /// The asset ID for the asset that we use to pay for message delivery fees.
     pub FeeAssetId: AssetId = AssetId(xcm_config::RelayLocation::get());
     /// The base fee for the message delivery fees.
@@ -239,7 +240,7 @@ pub type PriceForSiblingParachainDelivery =
 
 /// The price for delivering XCM messages to relay chain.
 pub type PriceForParentDelivery =
-    ExponentialPrice<FeeAssetId, ToParentBaseDeliveryFee, TransactionByteFee, ParachainSystem>;
+    ExponentialPrice<LocalFeeAssetId, ToParentBaseDeliveryFee, TransactionByteFee, ParachainSystem>;
 
 impl cumulus_pallet_xcmp_queue::Config for Runtime {
     type RuntimeEvent = RuntimeEvent;
