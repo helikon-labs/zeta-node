@@ -35,25 +35,25 @@ substrate-wasm-builder = { optional = true, workspace = true, default-features =
 [features]
 default = ["std"]
 std = [
-	"codec/std",
-	"cumulus-pallet-parachain-system/std",
-	"log/std",
-	"pallet-zeta/std",
-	"polkadot-sdk/std",
-	"scale-info/std",
-	"serde_json/std",
-	"substrate-wasm-builder",
+    "codec/std",
+    "cumulus-pallet-parachain-system/std",
+    "log/std",
+    "pallet-zeta/std",
+    "polkadot-sdk/std",
+    "scale-info/std",
+    "serde_json/std",
+    "substrate-wasm-builder",
 ]
 runtime-benchmarks = [
-	"cumulus-pallet-parachain-system/runtime-benchmarks",
-	"hex-literal",
-	"pallet-zeta/runtime-benchmarks",
-	"polkadot-sdk/runtime-benchmarks",
+    "cumulus-pallet-parachain-system/runtime-benchmarks",
+    "hex-literal",
+    "pallet-zeta/runtime-benchmarks",
+    "polkadot-sdk/runtime-benchmarks",
 ]
 try-runtime = [
-	"cumulus-pallet-parachain-system/try-runtime",
-	"pallet-zeta/try-runtime",
-	"polkadot-sdk/try-runtime",
+    "cumulus-pallet-parachain-system/try-runtime",
+    "pallet-zeta/try-runtime",
+    "polkadot-sdk/try-runtime",
 ]
 
 # Enable the metadata hash generation.

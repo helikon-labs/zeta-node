@@ -22,27 +22,20 @@ docify = { workspace = true }
 futures = { workspace = true }
 jsonrpsee = { features = ["server"], workspace = true }
 log = { workspace = true, default-features = true }
-zeta-runtime.workspace = true
 polkadot-sdk = { workspace = true, features = ["node", "polkadot-primitives"] }
 prometheus-endpoint.default-features = true
 prometheus-endpoint.workspace = true
 serde = { features = ["derive"], workspace = true, default-features = true }
+zeta-runtime.workspace = true
 
 [build-dependencies]
 polkadot-sdk = { workspace = true, features = ["substrate-build-script-utils"] }
 
 [features]
 default = ["std"]
-std = [
-	"log/std",
-	"zeta-runtime/std",
-	"polkadot-sdk/std",
-]
+std = ["log/std", "polkadot-sdk/std", "zeta-runtime/std"]
 runtime-benchmarks = [
-	"zeta-runtime/runtime-benchmarks",
-	"polkadot-sdk/runtime-benchmarks",
+    "polkadot-sdk/runtime-benchmarks",
+    "zeta-runtime/runtime-benchmarks",
 ]
-try-runtime = [
-	"zeta-runtime/try-runtime",
-	"polkadot-sdk/try-runtime",
-]
+try-runtime = ["polkadot-sdk/try-runtime", "zeta-runtime/try-runtime"]
