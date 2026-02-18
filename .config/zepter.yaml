@@ -9,22 +9,41 @@ workflows:
   check:
     - [
         'lint',
-        # Check that `A` activates the features of `B`.
-        'propagate-feature',
-        # These are the features to check:
-        '--features=try-runtime,runtime-benchmarks,std,kusama-ahm,polkadot-ahm',
-        # Do not try to add a new section into `[features]` of `A` only because `B` expose that feature. There are edge-cases where this is still needed, but we can add them manually.
-        '--left-side-feature-missing=ignore',
-        # Ignore the case that `A` it outside of the workspace. Otherwise it will report errors in external dependencies that we have no influence on.
-        '--left-side-outside-workspace=ignore',
-        # Some features imply that they activate a specific dependency as non-optional. Otherwise the default behaviour with a `?` is used.
-        '--feature-enables-dep=try-runtime:frame-try-runtime,runtime-benchmarks:frame-benchmarking',
-        # Auxillary flags:
-        '--offline',
+        'duplicate-deps',
+        '--workspace',
         '--locked',
-        '--show-path',
-        '--quiet',
+        '--offline',
+        '--all-features',
       ]
-  # Same as `check`, but with the `--fix` flag.
+    - [
+        'lint',
+        'no-std',
+        'default-features-of-nostd-dependencies-disabled',
+        '--workspace',
+        '--locked',
+        '--offline',
+        '--all-features',
+      ]
+    # - [
+    #     'lint',
+    #     # Check that `A` activates the features of `B`.
+    #     'propagate-feature',
+    #     # These are the features to check:
+    #     '--features=try-runtime,runtime-benchmarks,std,kusama-ahm,polkadot-ahm',
+    #     # Do not try to add a new section into `[features]` of `A` only because `B` expose that feature. There are edge-cases where this is still needed, but we can add them manually.
+    #     '--left-side-feature-missing=ignore',
+    #     # Ignore the case that `A` it outside of the workspace. Otherwise it will report errors in external dependencies that we have no influence on.
+    #     '--left-side-outside-workspace=ignore',
+    #     # Some features imply that they activate a specific dependency as non-optional. Otherwise the default behaviour with a `?` is used.
+    #     '--feature-enables-dep=try-runtime:frame-try-runtime,runtime-benchmarks:frame-benchmarking',
+    #     # Auxillary flags:
+    #     '--offline',
+    #     '--locked',
+    #     '--show-path',
+    #     '--quiet',
+    #   ]
   default:
-    - [ $check.0, '--fix' ]
+    - [ $check.0 ]
+    - [ $check.1, '--fix' ]
+    # Same as `check`, but with the `--fix` flag.
+    #- [ $check.0, '--fix' ]
