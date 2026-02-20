@@ -219,6 +219,10 @@ const MAXIMUM_BLOCK_WEIGHT: Weight = Weight::from_parts(
     cumulus_primitives_core::relay_chain::MAX_POV_SIZE as u64,
 );
 
+pub(crate) const fn deposit(items: u32, bytes: u32) -> Balance {
+    items as Balance * 15 * CENTS + (bytes as Balance) * 6 * CENTS
+}
+
 #[docify::export]
 mod async_backing_params {
     /// Maximum number of blocks simultaneously accepted by the Runtime, not yet included
@@ -293,6 +297,8 @@ mod runtime {
     // utility
     #[runtime::pallet_index(30)]
     pub type Utility = pallet_utility;
+    #[runtime::pallet_index(31)]
+    pub type Multisig = pallet_multisig;
 
     // Collator support. The order of these 4 are important and shall not change.
     #[runtime::pallet_index(40)]

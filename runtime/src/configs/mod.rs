@@ -174,6 +174,32 @@ impl pallet_sudo::Config for Runtime {
     type WeightInfo = ();
 }
 
+impl pallet_utility::Config for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type RuntimeCall = RuntimeCall;
+    type PalletsOrigin = OriginCaller;
+    type WeightInfo = ();
+}
+
+parameter_types! {
+    // one storage item; key size is 32; value is size (4 + 4 + 16 + 32) bytes = 56 bytes
+    pub const DepositBase: Balance = super::deposit(1, 88);
+    // additional storage item size of 32 bytes
+    pub const DepositFactor: Balance = super::deposit(0, 32);
+    pub const MaxSignatories: u16 = 64;
+}
+
+impl pallet_multisig::Config for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type RuntimeCall = RuntimeCall;
+    type Currency = Balances;
+    type DepositBase = DepositBase;
+    type DepositFactor = DepositFactor;
+    type MaxSignatories = MaxSignatories;
+    type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
+    type BlockNumberProvider = System;
+}
+
 parameter_types! {
     pub const ReservedXcmpWeight: Weight = MAXIMUM_BLOCK_WEIGHT.saturating_div(4);
     pub const ReservedDmpWeight: Weight = MAXIMUM_BLOCK_WEIGHT.saturating_div(4);
@@ -315,13 +341,6 @@ impl pallet_collator_selection::Config for Runtime {
     type ValidatorId = <Self as frame_system::Config>::AccountId;
     type ValidatorIdOf = pallet_collator_selection::IdentityCollator;
     type ValidatorRegistration = Session;
-    type WeightInfo = ();
-}
-
-impl pallet_utility::Config for Runtime {
-    type RuntimeEvent = RuntimeEvent;
-    type RuntimeCall = RuntimeCall;
-    type PalletsOrigin = OriginCaller;
     type WeightInfo = ();
 }
 
