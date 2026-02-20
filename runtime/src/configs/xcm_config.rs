@@ -23,13 +23,13 @@ use polkadot_sdk::{
 };
 use xcm::latest::prelude::*;
 use xcm_builder::{
-    AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowTopLevelPaidExecutionFrom,
-    DenyReserveTransferToRelayChain, DescribeAllTerminal, DescribeFamily, DescribeTerminus,
-    EnsureXcmOrigin, FixedWeightBounds, FrameTransactionalProcessor, FungibleAdapter,
-    HashedDescription, IsConcrete, NativeAsset, ParentIsPreset, RelayChainAsNative,
-    SiblingParachainAsNative, SiblingParachainConvertsVia, SignedAccountId32AsNative,
-    SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit, TrailingSetTopicAsId,
-    UsingComponents, WithComputedOrigin, WithUniqueTopic,
+    AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowKnownQueryResponses,
+    AllowSubscriptionsFrom, AllowTopLevelPaidExecutionFrom, DenyReserveTransferToRelayChain,
+    DescribeAllTerminal, DescribeFamily, DescribeTerminus, EnsureXcmOrigin, FixedWeightBounds,
+    FrameTransactionalProcessor, FungibleAdapter, HashedDescription, IsConcrete, NativeAsset,
+    ParentIsPreset, RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
+    SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit,
+    TrailingSetTopicAsId, UsingComponents, WithComputedOrigin, WithUniqueTopic,
 };
 use xcm_executor::XcmExecutor;
 
@@ -126,11 +126,15 @@ pub type Barrier = TrailingSetTopicAsId<
         DenyRecursively<DenyReserveTransferToRelayChain>,
         (
             TakeWeightCredit,
+            AllowKnownQueryResponses<PolkadotXcm>,
             WithComputedOrigin<
                 (
+                    // if the message is one that immediately attempts to pay for execution, then allow it
                     AllowTopLevelPaidExecutionFrom<Everything>,
+                    // parent and its exec plurality get free execution
                     AllowExplicitUnpaidExecutionFrom<ParentOrParentsExecutivePlurality>,
-                    // ^^^ Parent and its exec plurality get free execution
+                    // subscriptions for version tracking are ok
+                    AllowSubscriptionsFrom<Everything>,
                 ),
                 UniversalLocation,
                 ConstU32<8>,
