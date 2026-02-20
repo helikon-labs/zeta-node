@@ -298,6 +298,10 @@ mod runtime {
     #[runtime::pallet_index(30)]
     pub type Utility = pallet_utility;
     #[runtime::pallet_index(31)]
+    pub type Preimage = pallet_preimage;
+    #[runtime::pallet_index(32)]
+    pub type Scheduler = pallet_scheduler;
+    #[runtime::pallet_index(33)]
     pub type Multisig = pallet_multisig;
 
     // Collator support. The order of these 4 are important and shall not change.
