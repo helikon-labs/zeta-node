@@ -13,7 +13,8 @@ use frame_support::{
     parameter_types,
     traits::{
         fungible::HoldConsideration, ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse,
-        EqualPrivilegeOnly, LinearStoragePrice, TransformOrigin, VariantCountOf, WithdrawReasons,
+        EqualPrivilegeOnly, InstanceFilter, LinearStoragePrice, TransformOrigin, VariantCountOf,
+        WithdrawReasons,
     },
     weights::{ConstantMultiplier, Weight},
     PalletId,
@@ -28,20 +29,21 @@ use polkadot_runtime_common::{
     xcm_sender::ExponentialPrice, BlockHashCount, SlowAdjustingFeeUpdate,
 };
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::{traits::ConvertInto, Perbill};
+use sp_runtime::{traits::ConvertInto, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::{AssetId, BodyId};
 
 // Local module imports
 use super::{
     weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
-    AccountId, Aura, Balance, Balances, Block, BlockNumber, CollatorSelection, ConsensusHook, Hash,
-    MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Preimage, Runtime, RuntimeCall,
-    RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin, RuntimeTask, Session,
-    SessionKeys, System, WeightToFee, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO, CENTS,
-    EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO,
+    AccountId, Aura, Balance, Balances, BlakeTwo256, Block, BlockNumber, CollatorSelection,
+    ConsensusHook, Hash, MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Preimage,
+    Runtime, RuntimeCall, RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin,
+    RuntimeTask, Session, SessionKeys, System, WeightToFee, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO,
+    CENTS, EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO,
     SLOT_DURATION, VERSION,
 };
+use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin};
 
 parameter_types! {
@@ -219,6 +221,101 @@ impl pallet_multisig::Config for Runtime {
     type MaxSignatories = MaxSignatories;
     type WeightInfo = pallet_multisig::weights::SubstrateWeight<Runtime>;
     type BlockNumberProvider = System;
+}
+
+parameter_types! {
+    // One storage item; key size 32, value size 8; .
+    pub const ProxyDepositBase: Balance = super::deposit(1, 40);
+    // Additional storage item size of 33 bytes.
+    pub const ProxyDepositFactor: Balance = super::deposit(0, 33);
+    pub const MaxProxies: u16 = 32;
+    // One storage item; key size 32, value size 16
+    pub const AnnouncementDepositBase: Balance = super::deposit(1, 48);
+    pub const AnnouncementDepositFactor: Balance = super::deposit(0, 66);
+    pub const MaxPending: u16 = 32;
+}
+
+/// The type used to represent the kinds of proxying allowed.
+#[derive(
+    Copy,
+    Clone,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Encode,
+    Decode,
+    DecodeWithMemTracking,
+    RuntimeDebug,
+    MaxEncodedLen,
+    scale_info::TypeInfo,
+)]
+pub enum ProxyType {
+    Any,
+    Collator,
+    Governance,
+    NonTransfer,
+}
+
+impl Default for ProxyType {
+    fn default() -> Self {
+        Self::Any
+    }
+}
+
+impl InstanceFilter<RuntimeCall> for ProxyType {
+    fn filter(&self, call: &RuntimeCall) -> bool {
+        match self {
+            ProxyType::Any => true,
+            ProxyType::Collator => matches!(
+                call,
+                RuntimeCall::CollatorSelection(..)
+                    | RuntimeCall::Utility(..)
+                    | RuntimeCall::Multisig(..),
+            ),
+            ProxyType::Governance => matches!(call, RuntimeCall::Sudo(..)),
+            ProxyType::NonTransfer => matches!(
+                call,
+                // basic
+                RuntimeCall::System(..)
+                    | RuntimeCall::ParachainSystem(..)
+                    | RuntimeCall::Timestamp(..)
+                    | RuntimeCall::ParachainInfo(..)
+                    // monetary
+                    | RuntimeCall::Vesting(pallet_vesting::Call::vest { .. })
+                    | RuntimeCall::Vesting(pallet_vesting::Call::vest_other { .. })
+                    // governance
+                    | RuntimeCall::Sudo(..)
+                    // utility
+                    | RuntimeCall::Utility(..)
+                    | RuntimeCall::Preimage(..)
+                    | RuntimeCall::Scheduler(..)
+                    | RuntimeCall::Multisig(..)
+                    | RuntimeCall::Proxy(..)
+                    // authorship
+                    | RuntimeCall::CollatorSelection(..)
+                    | RuntimeCall::Session(..)
+                    // zeta
+                    | RuntimeCall::Zeta(..),
+            ),
+        }
+    }
+}
+
+impl pallet_proxy::Config for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type RuntimeCall = RuntimeCall;
+    type Currency = Balances;
+    type ProxyType = ProxyType;
+    type ProxyDepositBase = ProxyDepositBase;
+    type ProxyDepositFactor = ProxyDepositFactor;
+    type MaxProxies = MaxProxies;
+    type WeightInfo = pallet_proxy::weights::SubstrateWeight<Runtime>;
+    type MaxPending = MaxPending;
+    type CallHasher = BlakeTwo256;
+    type AnnouncementDepositBase = AnnouncementDepositBase;
+    type AnnouncementDepositFactor = AnnouncementDepositFactor;
+    type BlockNumberProvider = RelaychainDataProvider<Runtime>;
 }
 
 parameter_types! {

@@ -305,8 +305,10 @@ mod runtime {
     pub type Scheduler = pallet_scheduler;
     #[runtime::pallet_index(33)]
     pub type Multisig = pallet_multisig;
+    #[runtime::pallet_index(34)]
+    pub type Proxy = pallet_proxy;
 
-    // Collator support. The order of these 4 are important and shall not change.
+    // authorship
     #[runtime::pallet_index(40)]
     pub type Authorship = pallet_authorship;
     #[runtime::pallet_index(41)]
@@ -318,7 +320,7 @@ mod runtime {
     #[runtime::pallet_index(44)]
     pub type AuraExt = cumulus_pallet_aura_ext;
 
-    // xcm
+    // XCM
     #[runtime::pallet_index(50)]
     pub type XcmpQueue = cumulus_pallet_xcmp_queue;
     #[runtime::pallet_index(51)]

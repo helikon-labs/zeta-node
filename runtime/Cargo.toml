@@ -40,6 +40,7 @@ polkadot-sdk = { workspace = true, features = [
     "pallet-message-queue",
     "pallet-multisig",
     "pallet-preimage",
+    "pallet-proxy",
     "pallet-scheduler",
     "pallet-session",
     "pallet-sudo",
