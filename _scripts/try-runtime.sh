@@ -7,4 +7,4 @@ try-runtime \
     --runtime ./target/release/wbuild/zeta-runtime/zeta_runtime.wasm \
     on-runtime-upgrade \
     --blocktime 6000 \
-    live --uri ws://57.128.229.212:7001
+    live --uri ws://127.0.0.1:7001 # set this to live RPC URL
