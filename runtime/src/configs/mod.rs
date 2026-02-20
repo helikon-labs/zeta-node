@@ -5,7 +5,7 @@ use polkadot_sdk::{staging_parachain_info as parachain_info, staging_xcm as xcm,
 use polkadot_sdk::{staging_xcm_builder as xcm_builder, staging_xcm_executor as xcm_executor};
 
 // Substrate and Polkadot dependencies
-use cumulus_pallet_parachain_system::RelayNumberMonotonicallyIncreases;
+use cumulus_pallet_parachain_system::{RelayNumberMonotonicallyIncreases, RelaychainDataProvider};
 use cumulus_primitives_core::{AggregateMessageOrigin, ParaId};
 use frame_support::{
     derive_impl,
@@ -13,7 +13,7 @@ use frame_support::{
     parameter_types,
     traits::{
         fungible::HoldConsideration, ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse,
-        EqualPrivilegeOnly, LinearStoragePrice, TransformOrigin, VariantCountOf,
+        EqualPrivilegeOnly, LinearStoragePrice, TransformOrigin, VariantCountOf, WithdrawReasons,
     },
     weights::{ConstantMultiplier, Weight},
     PalletId,
@@ -28,7 +28,7 @@ use polkadot_runtime_common::{
     xcm_sender::ExponentialPrice, BlockHashCount, SlowAdjustingFeeUpdate,
 };
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::Perbill;
+use sp_runtime::{traits::ConvertInto, Perbill};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::{AssetId, BodyId};
 
@@ -167,6 +167,26 @@ impl pallet_transaction_payment::Config for Runtime {
     type FeeMultiplierUpdate = SlowAdjustingFeeUpdate<Self>;
     type OperationalFeeMultiplier = ConstU8<5>;
     type WeightInfo = ();
+}
+
+parameter_types! {
+    pub UnvestedFundsAllowedWithdrawReasons: WithdrawReasons =
+        WithdrawReasons::except(WithdrawReasons::TRANSFER | WithdrawReasons::RESERVE);
+}
+
+impl pallet_vesting::Config for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type Currency = Balances;
+    type BlockNumberToBalance = ConvertInto;
+    type MinVestedTransfer = ExistentialDeposit;
+    type WeightInfo = pallet_vesting::weights::SubstrateWeight<Runtime>;
+    type UnvestedFundsAllowedWithdrawReasons = UnvestedFundsAllowedWithdrawReasons;
+    /// Note for wallets and implementers: This means that vesting schedules are evaluated with the
+    /// block number of the Relay Chain, not the parachain. This is because with Coretime and Async
+    /// Backing, parachain block numbers may not be a good proxy for time. Vesting schedules should
+    /// be set accordingly.
+    type BlockNumberProvider = RelaychainDataProvider<Runtime>;
+    const MAX_VESTING_SCHEDULES: u32 = 28;
 }
 
 impl pallet_sudo::Config for Runtime {
