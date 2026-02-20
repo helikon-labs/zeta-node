@@ -26,10 +26,26 @@ mod benchmarks {
         let caller: T::AccountId = whitelisted_caller();
         #[extrinsic_call]
         increment_value(RawOrigin::Signed(caller));
-        assert_eq!(
-            Value::<T>::get().map(|v| v.value),
-            Some(incremented_value.into())
-        );
+        assert_eq!(Value::<T>::get().map(|v| v.value), Some(incremented_value));
+    }
+
+    #[benchmark]
+    fn decrement_value() {
+        let value: u32 = 100;
+        let decremented_value: u32 = 99;
+        Value::<T>::put(CompositeStruct { value });
+        let caller: T::AccountId = whitelisted_caller();
+        #[extrinsic_call]
+        decrement_value(RawOrigin::Signed(caller));
+        assert_eq!(Value::<T>::get().map(|v| v.value), Some(decremented_value));
+    }
+
+    #[benchmark]
+    fn reset_value() {
+        let caller: T::AccountId = whitelisted_caller();
+        #[extrinsic_call]
+        reset_value(RawOrigin::Signed(caller));
+        assert_eq!(Value::<T>::get().map(|v| v.value), Some(0));
     }
 
     impl_benchmark_test_suite!(

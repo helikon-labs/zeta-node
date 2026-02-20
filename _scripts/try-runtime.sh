@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+
+cargo build --release --features try-runtime -p zeta-runtime
+# see examples @ https://github.com/paritytech/try-runtime-cli?tab=readme-ov-file#examples
+try-runtime \
+    --runtime ./target/release/wbuild/zeta-runtime/zeta_runtime.wasm \
+    on-runtime-upgrade \
+    --blocktime 6000 \
+    live --uri ws://57.128.229.212:7001

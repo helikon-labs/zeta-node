@@ -50,6 +50,9 @@ pub mod pallet {
     #[pallet::generate_deposit(pub(super) fn deposit_event)]
     pub enum Event<T: Config> {
         ValueStored { value: u32, who: T::AccountId },
+        ValueIncremented { new_value: u32, who: T::AccountId },
+        ValueDecremented { new_value: u32, who: T::AccountId },
+        ValueReset { who: T::AccountId },
     }
 
     /// Pallet errors.
@@ -79,15 +82,19 @@ pub mod pallet {
         #[pallet::call_index(1)]
         #[pallet::weight(T::WeightInfo::increment_value())]
         pub fn increment_value(origin: OriginFor<T>) -> DispatchResultWithPostInfo {
-            let _who = ensure_signed(origin)?;
+            let who = ensure_signed(origin)?;
             match <Value<T>>::get() {
                 None => Err(Error::<T>::NoneValue)?,
-                Some(mut old) => {
-                    old.value = old
+                Some(mut value) => {
+                    value.value = value
                         .value
                         .checked_add(1)
                         .ok_or(Error::<T>::StorageOverflow)?;
-                    <Value<T>>::put(old);
+                    <Value<T>>::put(value.clone());
+                    Self::deposit_event(Event::ValueIncremented {
+                        new_value: value.value,
+                        who,
+                    });
                     Ok(().into())
                 }
             }
@@ -97,18 +104,32 @@ pub mod pallet {
         #[pallet::call_index(2)]
         #[pallet::weight(T::WeightInfo::decrement_value())]
         pub fn decrement_value(origin: OriginFor<T>) -> DispatchResultWithPostInfo {
-            let _who = ensure_signed(origin)?;
+            let who = ensure_signed(origin)?;
             match <Value<T>>::get() {
                 None => Err(Error::<T>::NoneValue)?,
-                Some(mut old) => {
-                    old.value = old
+                Some(mut value) => {
+                    value.value = value
                         .value
                         .checked_sub(1)
                         .ok_or(Error::<T>::StorageOverflow)?;
-                    <Value<T>>::put(old);
+                    <Value<T>>::put(value.clone());
+                    Self::deposit_event(Event::ValueDecremented {
+                        new_value: value.value,
+                        who,
+                    });
                     Ok(().into())
                 }
             }
+        }
+
+        /// Decrement the stored value.
+        #[pallet::call_index(3)]
+        #[pallet::weight(T::WeightInfo::reset_value())]
+        pub fn reset_value(origin: OriginFor<T>) -> DispatchResultWithPostInfo {
+            let who = ensure_signed(origin)?;
+            <Value<T>>::put(CompositeStruct { value: 0 });
+            Self::deposit_event(Event::ValueReset { who });
+            Ok(().into())
         }
     }
 }
