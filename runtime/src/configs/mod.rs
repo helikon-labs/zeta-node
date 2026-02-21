@@ -14,15 +14,16 @@ use frame_support::{
     traits::{
         fungible::HoldConsideration,
         tokens::{imbalance::ResolveTo, PayFromAccount, UnityAssetBalanceConversion},
-        ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse, EqualPrivilegeOnly,
-        InstanceFilter, LinearStoragePrice, TransformOrigin, VariantCountOf, WithdrawReasons,
+        AsEnsureOriginWithArg, ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse,
+        EqualPrivilegeOnly, InstanceFilter, LinearStoragePrice, TransformOrigin, VariantCountOf,
+        WithdrawReasons,
     },
     weights::{ConstantMultiplier, Weight},
     PalletId,
 };
 use frame_system::{
     limits::{BlockLength, BlockWeights},
-    EnsureRoot, EnsureRootWithSuccess,
+    EnsureNever, EnsureRoot, EnsureRootWithSuccess,
 };
 use pallet_xcm::{EnsureXcm, IsVoiceOfBody};
 use parachains_common::message_queue::{NarrowOriginToSibling, ParaIdToSibling};
@@ -32,10 +33,11 @@ use polkadot_runtime_common::{
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
 use sp_runtime::{traits::ConvertInto, traits::IdentityLookup, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
-use xcm::latest::prelude::{AssetId, BodyId};
+use xcm::latest::prelude::{AssetId, BodyId, Location as XcmLocation};
 
 // Local module imports
 use super::{
+    assets_common::local_and_foreign_assets::ForeignAssetReserveData,
     weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
     AccountId, Aura, Balance, Balances, BlakeTwo256, Block, CollatorSelection, ConsensusHook, Hash,
     MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Permill, Preimage, Runtime,
@@ -442,7 +444,50 @@ impl pallet_message_queue::Config for Runtime {
     type IdleMaxServiceWeight = ();
 }
 
-impl cumulus_pallet_aura_ext::Config for Runtime {}
+/// The pallet-assets instance used for foreign assets received over XCM
+/// (e.g. PAS from relay chain, ZETA from sibling parachains on Asset Hub).
+/// Asset IDs are XCM `Location` values, making the mapping between on-chain
+/// asset records and their cross-chain origin unambiguous.
+pub type ForeignAssetsInstance = pallet_assets::Instance1;
+pub type ForeignAssets = pallet_assets::Pallet<Runtime, ForeignAssetsInstance>;
+
+parameter_types! {
+    /// Deposit required to create a new foreign asset record (paid by ForceOrigin = root).
+    pub const ForeignAssetDeposit: Balance = EXISTENTIAL_DEPOSIT;
+    /// Deposit required per account that holds a foreign asset balance.
+    pub const ForeignAssetAccountDeposit: Balance = EXISTENTIAL_DEPOSIT;
+    pub const ForeignAssetsStringLimit: u32 = 50;
+    pub const ForeignMetadataDepositBase: Balance = super::deposit(1, 68);
+    pub const ForeignMetadataDepositPerByte: Balance = super::deposit(0, 1);
+    pub const ForeignApprovalDeposit: Balance = EXISTENTIAL_DEPOSIT;
+}
+
+impl pallet_assets::Config<ForeignAssetsInstance> for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type Balance = Balance;
+    type RemoveItemsLimit = ConstU32<1000>;
+    type AssetId = XcmLocation;
+    type AssetIdParameter = XcmLocation;
+    type ReserveData = ForeignAssetReserveData;
+    type Currency = Balances;
+    // assets can only be created via `force_create` (root / sudo)
+    // prevents unauthorised asset registrations from consuming storage deposits
+    type CreateOrigin = AsEnsureOriginWithArg<EnsureNever<AccountId>>;
+    type ForceOrigin = EnsureRoot<AccountId>;
+    type AssetDeposit = ForeignAssetDeposit;
+    type AssetAccountDeposit = ForeignAssetAccountDeposit;
+    type MetadataDepositBase = ForeignMetadataDepositBase;
+    type MetadataDepositPerByte = ForeignMetadataDepositPerByte;
+    type ApprovalDeposit = ForeignApprovalDeposit;
+    type StringLimit = ForeignAssetsStringLimit;
+    type Freezer = ();
+    type Holder = ();
+    type Extra = ();
+    type CallbackHandle = ();
+    type WeightInfo = pallet_assets::weights::SubstrateWeight<Runtime>;
+    #[cfg(feature = "runtime-benchmarks")]
+    type BenchmarkHelper = xcm_config::XcmBenchmarkHelper;
+}
 
 parameter_types! {
     pub LocalFeeAssetId: AssetId = AssetId(xcm_config::RootLocation::get());
@@ -506,6 +551,8 @@ impl pallet_aura::Config for Runtime {
     type AllowMultipleBlocksPerSlot = ConstBool<true>;
     type SlotDuration = ConstU64<SLOT_DURATION>;
 }
+
+impl cumulus_pallet_aura_ext::Config for Runtime {}
 
 parameter_types! {
     pub const PotId: PalletId = PalletId(*b"PotStake");

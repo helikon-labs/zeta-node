@@ -285,7 +285,7 @@ mod runtime {
     #[runtime::pallet_index(4)]
     pub type WeightReclaim = cumulus_pallet_weight_reclaim;
 
-    // monetary
+    // monetary/assets/ownership
     #[runtime::pallet_index(10)]
     pub type Balances = pallet_balances;
     #[runtime::pallet_index(11)]
@@ -294,6 +294,8 @@ mod runtime {
     pub type Vesting = pallet_vesting;
     #[runtime::pallet_index(13)]
     pub type Treasury = pallet_treasury;
+    #[runtime::pallet_index(14)]
+    pub type ForeignAssets = pallet_assets<Instance1>;
 
     // governance
     #[runtime::pallet_index(20)]

@@ -1,7 +1,8 @@
 use super::{PriceForParentDelivery, TreasuryAccount};
 use crate::{
-    AccountId, AllPalletsWithSystem, Balances, ParachainInfo, ParachainSystem, PolkadotXcm,
-    Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
+    AccountId, AllPalletsWithSystem, Balance, Balances, ForeignAssets, ParachainInfo,
+    ParachainSystem, PolkadotXcm, Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee,
+    XcmpQueue,
 };
 
 use polkadot_sdk::{
@@ -10,34 +11,31 @@ use polkadot_sdk::{
 
 use frame_support::{
     parameter_types,
-    traits::{ConstU32, Contains, Equals, Everything, Nothing},
+    traits::{ConstU32, Contains, ContainsPair, Disabled, Equals, Everything, Nothing},
     weights::Weight,
 };
 use frame_system::EnsureRoot;
 use pallet_xcm::XcmPassthrough;
 use polkadot_parachain_primitives::primitives::Sibling;
 use polkadot_runtime_common::impls::ToAuthor;
-use polkadot_sdk::{
-    polkadot_sdk_frame::traits::Disabled,
-    staging_xcm_builder::{DenyRecursively, DenyThenTry},
-};
 use xcm::latest::prelude::*;
 use xcm_builder::{
     AccountId32Aliases, AllowExplicitUnpaidExecutionFrom, AllowKnownQueryResponses,
-    AllowSubscriptionsFrom, AllowTopLevelPaidExecutionFrom, DenyReserveTransferToRelayChain,
+    AllowSubscriptionsFrom, AllowTopLevelPaidExecutionFrom, ConvertedConcreteId,
     DescribeAllTerminal, DescribeFamily, DescribeTerminus, EnsureXcmOrigin, FixedWeightBounds,
-    FrameTransactionalProcessor, FungibleAdapter, HashedDescription, IsConcrete, NativeAsset,
-    ParentIsPreset, RelayChainAsNative, SendXcmFeeToAccount, SiblingParachainAsNative,
-    SiblingParachainConvertsVia, SignedAccountId32AsNative, SignedToAccountId32,
-    SovereignSignedViaLocation, TakeWeightCredit, TrailingSetTopicAsId, UsingComponents,
-    WithComputedOrigin, WithUniqueTopic, XcmFeeManagerFromComponents,
+    FrameTransactionalProcessor, FungibleAdapter, FungiblesAdapter, HashedDescription, IsConcrete,
+    NativeAsset, NoChecking, ParentIsPreset, RelayChainAsNative, SendXcmFeeToAccount,
+    SiblingParachainAsNative, SiblingParachainConvertsVia, SignedAccountId32AsNative,
+    SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit, TrailingSetTopicAsId,
+    UsingComponents, WithComputedOrigin, WithUniqueTopic, XcmFeeManagerFromComponents,
 };
-use xcm_executor::XcmExecutor;
+use xcm_executor::{traits::JustTry, XcmExecutor};
 
 parameter_types! {
     pub const RootLocation: Location = Location::here();
     pub const RelayLocation: Location = Location::parent();
     pub const RelayNetwork: Option<NetworkId> = Some(NetworkId::Polkadot);
+    pub AssetHubLocation: Location = Location::new(1, [Parachain(1000)]);
     pub RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
     // For the real deployment, it is recommended to set `RelayNetwork` according to the relay chain
     // and prepend `UniversalLocation` with `GlobalConsensus(RelayNetwork::get())`.
@@ -45,6 +43,17 @@ parameter_types! {
         GlobalConsensus(RelayNetwork::get().unwrap()),
         Parachain(ParachainInfo::parachain_id().into()),
     ].into();
+    /// Dummy checking account for FungiblesAdapter.
+    /// Never actually credited — NoChecking disables teleport tracking.
+    pub DummyCheckingAccount: AccountId = AccountId::new([0u8; 32]);
+}
+
+pub struct AssetHubReserveForRelayToken;
+impl ContainsPair<Asset, Location> for AssetHubReserveForRelayToken {
+    fn contains(asset: &Asset, origin: &Location) -> bool {
+        let relay_native = AssetId(Location::parent());
+        *origin == AssetHubLocation::get() && asset.id == relay_native
+    }
 }
 
 /// Type for specifying how a `Location` can be converted into an `AccountId`. This is used
@@ -64,18 +73,23 @@ pub type LocationToAccountId = (
 );
 
 /// Means for transacting assets on this chain.
-pub type LocalAssetTransactor = FungibleAdapter<
-    // Use this currency:
-    Balances,
-    // Use this currency when it is a fungible asset matching the given location or name:
-    IsConcrete<RootLocation>,
-    // Do a simple punn to convert an AccountId32 Location into a native chain account ID:
+pub type NativeAssetTransactor =
+    FungibleAdapter<Balances, IsConcrete<RootLocation>, LocationToAccountId, AccountId, ()>;
+
+/// Handles foreign assets stored in the `ForeignAssets` pallet instance.
+/// The asset ID in pallet-assets is the XCM `Location` of the asset's home chain,
+/// so no separate mapping table is required.
+pub type ForeignAssetsTransactor = FungiblesAdapter<
+    ForeignAssets,
+    ConvertedConcreteId<Location, Balance, JustTry, JustTry>,
     LocationToAccountId,
-    // Our chain's account ID type (we can't get away without mentioning it explicitly):
     AccountId,
-    // We don't track any teleports.
-    (),
+    NoChecking,
+    DummyCheckingAccount,
 >;
+
+/// Combined asset transactor: tries native first, then foreign assets.
+pub type AssetTransactor = (NativeAssetTransactor, ForeignAssetsTransactor);
 
 /// This is the type we use to convert an (incoming) XCM origin into a local `Origin` instance,
 /// ready for dispatching a transaction with Xcm's `Transact`. There is an `OriginKind` which can
@@ -122,27 +136,22 @@ impl Contains<Location> for ParentOrParentsExecutivePlurality {
     }
 }
 
-pub type Barrier = TrailingSetTopicAsId<
-    DenyThenTry<
-        DenyRecursively<DenyReserveTransferToRelayChain>,
+pub type Barrier = TrailingSetTopicAsId<(
+    TakeWeightCredit,
+    AllowKnownQueryResponses<PolkadotXcm>,
+    WithComputedOrigin<
         (
-            TakeWeightCredit,
-            AllowKnownQueryResponses<PolkadotXcm>,
-            WithComputedOrigin<
-                (
-                    // if the message is one that immediately attempts to pay for execution, then allow it
-                    AllowTopLevelPaidExecutionFrom<Everything>,
-                    // parent and its exec plurality get free execution
-                    AllowExplicitUnpaidExecutionFrom<ParentOrParentsExecutivePlurality>,
-                    // subscriptions for version tracking are ok
-                    AllowSubscriptionsFrom<Everything>,
-                ),
-                UniversalLocation,
-                ConstU32<8>,
-            >,
+            // if the message is one that immediately attempts to pay for execution, then allow it
+            AllowTopLevelPaidExecutionFrom<Everything>,
+            // parent and its exec plurality get free execution
+            AllowExplicitUnpaidExecutionFrom<ParentOrParentsExecutivePlurality>,
+            // subscriptions for version tracking are ok
+            AllowSubscriptionsFrom<Everything>,
         ),
+        UniversalLocation,
+        ConstU32<8>,
     >,
->;
+)>;
 
 pub type WaivedLocations = Equals<RootLocation>;
 
@@ -151,11 +160,12 @@ impl xcm_executor::Config for XcmConfig {
     type RuntimeCall = RuntimeCall;
     type XcmSender = XcmRouter;
     type XcmEventEmitter = PolkadotXcm;
-    // How to withdraw and deposit an asset.
-    type AssetTransactor = LocalAssetTransactor;
+    // how to withdraw and deposit an asset
+    type AssetTransactor = AssetTransactor;
     type OriginConverter = XcmOriginToTransactDispatchOrigin;
-    type IsReserve = NativeAsset;
-    type IsTeleporter = (); // Teleporting is disabled.
+    type IsReserve = (NativeAsset, AssetHubReserveForRelayToken);
+    // teleporting is disabled
+    type IsTeleporter = ();
     type UniversalLocation = UniversalLocation;
     type Barrier = Barrier;
     type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
@@ -172,7 +182,7 @@ impl xcm_executor::Config for XcmConfig {
     type FeeManager = XcmFeeManagerFromComponents<
         WaivedLocations,
         // send XCM fees to treasury
-        SendXcmFeeToAccount<LocalAssetTransactor, TreasuryAccount>,
+        SendXcmFeeToAccount<AssetTransactor, TreasuryAccount>,
     >;
     type MessageExporter = ();
     type UniversalAliases = Nothing;
@@ -209,7 +219,7 @@ impl pallet_xcm::Config for Runtime {
     // Needs to be `Everything` for local testing.
     type XcmExecutor = XcmExecutor<XcmConfig>;
     type XcmTeleportFilter = Everything;
-    type XcmReserveTransferFilter = Nothing;
+    type XcmReserveTransferFilter = Everything;
     type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
     type UniversalLocation = UniversalLocation;
     type RuntimeOrigin = RuntimeOrigin;
@@ -234,4 +244,24 @@ impl pallet_xcm::Config for Runtime {
 impl cumulus_pallet_xcm::Config for Runtime {
     type RuntimeEvent = RuntimeEvent;
     type XcmExecutor = XcmExecutor<XcmConfig>;
+}
+
+/// Simple conversion of `u32` into an `AssetId` for use in benchmarking.
+#[cfg(feature = "runtime-benchmarks")]
+pub struct XcmBenchmarkHelper;
+#[cfg(feature = "runtime-benchmarks")]
+impl
+    pallet_assets::BenchmarkHelper<
+        Location,
+        assets_common::local_and_foreign_assets::ForeignAssetReserveData,
+    > for XcmBenchmarkHelper
+{
+    fn create_asset_id_parameter(id: u32) -> Location {
+        Location::new(1, Parachain(id))
+    }
+    fn create_reserve_id_parameter(
+        id: u32,
+    ) -> assets_common::local_and_foreign_assets::ForeignAssetReserveData {
+        (Location::new(1, Parachain(id)), false).into()
+    }
 }
