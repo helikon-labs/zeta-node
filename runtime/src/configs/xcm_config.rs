@@ -11,7 +11,10 @@ use polkadot_sdk::{
 
 use frame_support::{
     parameter_types,
-    traits::{ConstU32, Contains, ContainsPair, Disabled, Equals, Everything, Nothing},
+    traits::{
+        tokens::fungible::ItemOf, tokens::imbalance::ResolveTo, ConstU32, Contains, ContainsPair,
+        Disabled, Equals, Everything, Nothing,
+    },
     weights::Weight,
 };
 use frame_system::EnsureRoot;
@@ -169,8 +172,16 @@ impl xcm_executor::Config for XcmConfig {
     type UniversalLocation = UniversalLocation;
     type Barrier = Barrier;
     type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
-    type Trader =
-        UsingComponents<WeightToFee, RootLocation, AccountId, Balances, ToAuthor<Runtime>>;
+    type Trader = (
+        UsingComponents<WeightToFee, RootLocation, AccountId, Balances, ToAuthor<Runtime>>,
+        UsingComponents<
+            WeightToFee,
+            RelayLocation,
+            AccountId,
+            ItemOf<ForeignAssets, RelayLocation, AccountId>,
+            ResolveTo<TreasuryAccount, ItemOf<ForeignAssets, RelayLocation, AccountId>>,
+        >,
+    );
     type ResponseHandler = PolkadotXcm;
     type AssetTrap = PolkadotXcm;
     type AssetClaims = PolkadotXcm;
