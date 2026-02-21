@@ -175,8 +175,7 @@ impl xcm_executor::Config for XcmConfig {
     type AssetExchanger = ();
     type FeeManager = XcmFeeManagerFromComponents<
         WaivedLocations,
-        // fees from non-waived origins are dropped - to be replaced with
-        // SendXcmFeeToAccount<LocalAssetTransactor, SomeAccount> to collect them
+        // send XCM fees to treasury
         SendXcmFeeToAccount<LocalAssetTransactor, TreasuryAccount>,
     >;
     type MessageExporter = ();

@@ -13,7 +13,7 @@ use frame_support::{
     parameter_types,
     traits::{
         fungible::HoldConsideration,
-        tokens::{PayFromAccount, UnityAssetBalanceConversion},
+        tokens::{imbalance::ResolveTo, PayFromAccount, UnityAssetBalanceConversion},
         ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse, EqualPrivilegeOnly,
         InstanceFilter, LinearStoragePrice, TransformOrigin, VariantCountOf, WithdrawReasons,
     },
@@ -164,7 +164,8 @@ parameter_types! {
 
 impl pallet_transaction_payment::Config for Runtime {
     type RuntimeEvent = RuntimeEvent;
-    type OnChargeTransaction = pallet_transaction_payment::FungibleAdapter<Balances, ()>;
+    type OnChargeTransaction =
+        pallet_transaction_payment::FungibleAdapter<Balances, ResolveTo<TreasuryAccount, Balances>>;
     type WeightToFee = WeightToFee;
     type LengthToFee = ConstantMultiplier<Balance, TransactionByteFee>;
     type FeeMultiplierUpdate = SlowAdjustingFeeUpdate<Self>;
@@ -194,10 +195,11 @@ impl pallet_vesting::Config for Runtime {
 
 parameter_types! {
     pub const TreasuryPalletId: PalletId = PalletId(*b"zeta/tsy");
-    pub const MaxApprovals: u32 = 100;
     pub TreasuryAccount: AccountId = pallet_treasury::Pallet::<Runtime>::account_id();
     pub const Burn: Permill = Permill::from_perthousand(0);
-    pub const PayoutSpendPeriod: BlockNumber = 30 * DAYS;
+    pub const MaxApprovals: u32 = 100;
+    pub const SpendPeriod: u32 = 1 * WEEK;
+    pub const PayoutPeriod: u32 = 30 * DAYS;
     pub const MaxSpend: Balance = 1_000_000 * ZETAS;
 }
 
@@ -206,8 +208,8 @@ impl pallet_treasury::Config for Runtime {
     type Currency = Balances;
     type RejectOrigin = EnsureRoot<AccountId>;
     type RuntimeEvent = RuntimeEvent;
-    type SpendPeriod = ConstU32<{ 1 * WEEK }>;
-    type PayoutPeriod = ConstU32<{ 30 * DAYS }>;
+    type SpendPeriod = SpendPeriod;
+    type PayoutPeriod = PayoutPeriod;
     type Burn = Burn;
     type BurnDestination = ();
     type SpendFunds = ();
