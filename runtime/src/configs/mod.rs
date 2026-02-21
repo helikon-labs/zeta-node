@@ -12,16 +12,17 @@ use frame_support::{
     dispatch::DispatchClass,
     parameter_types,
     traits::{
-        fungible::HoldConsideration, ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse,
-        EqualPrivilegeOnly, InstanceFilter, LinearStoragePrice, TransformOrigin, VariantCountOf,
-        WithdrawReasons,
+        fungible::HoldConsideration,
+        tokens::{PayFromAccount, UnityAssetBalanceConversion},
+        ConstBool, ConstU32, ConstU64, ConstU8, EitherOfDiverse, EqualPrivilegeOnly,
+        InstanceFilter, LinearStoragePrice, TransformOrigin, VariantCountOf, WithdrawReasons,
     },
     weights::{ConstantMultiplier, Weight},
     PalletId,
 };
 use frame_system::{
     limits::{BlockLength, BlockWeights},
-    EnsureRoot,
+    EnsureRoot, EnsureRootWithSuccess,
 };
 use pallet_xcm::{EnsureXcm, IsVoiceOfBody};
 use parachains_common::message_queue::{NarrowOriginToSibling, ParaIdToSibling};
@@ -29,7 +30,7 @@ use polkadot_runtime_common::{
     xcm_sender::ExponentialPrice, BlockHashCount, SlowAdjustingFeeUpdate,
 };
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
-use sp_runtime::{traits::ConvertInto, Perbill, RuntimeDebug};
+use sp_runtime::{traits::ConvertInto, traits::IdentityLookup, Perbill, RuntimeDebug};
 use sp_version::RuntimeVersion;
 use xcm::latest::prelude::{AssetId, BodyId};
 
@@ -37,11 +38,11 @@ use xcm::latest::prelude::{AssetId, BodyId};
 use super::{
     weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
     AccountId, Aura, Balance, Balances, BlakeTwo256, Block, BlockNumber, CollatorSelection,
-    ConsensusHook, Hash, MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Preimage,
-    Runtime, RuntimeCall, RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin,
-    RuntimeTask, Session, SessionKeys, System, WeightToFee, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO,
-    CENTS, EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_UNIT, NORMAL_DISPATCH_RATIO,
-    SLOT_DURATION, VERSION,
+    ConsensusHook, Hash, MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Permill,
+    Preimage, Runtime, RuntimeCall, RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason,
+    RuntimeOrigin, RuntimeTask, Session, SessionKeys, System, WeightToFee, XcmpQueue,
+    AVERAGE_ON_INITIALIZE_RATIO, CENTS, DAYS, EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT,
+    MICRO_UNIT, NORMAL_DISPATCH_RATIO, SLOT_DURATION, VERSION, WEEK, ZETAS,
 };
 use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin};
@@ -189,6 +190,38 @@ impl pallet_vesting::Config for Runtime {
     /// be set accordingly.
     type BlockNumberProvider = RelaychainDataProvider<Runtime>;
     const MAX_VESTING_SCHEDULES: u32 = 28;
+}
+
+parameter_types! {
+    pub const TreasuryPalletId: PalletId = PalletId(*b"zeta/tsy");
+    pub const MaxApprovals: u32 = 100;
+    pub TreasuryAccount: AccountId = pallet_treasury::Pallet::<Runtime>::account_id();
+    pub const Burn: Permill = Permill::from_perthousand(0);
+    pub const PayoutSpendPeriod: BlockNumber = 30 * DAYS;
+    pub const MaxSpend: Balance = 1_000_000 * ZETAS;
+}
+
+impl pallet_treasury::Config for Runtime {
+    type PalletId = TreasuryPalletId;
+    type Currency = Balances;
+    type RejectOrigin = EnsureRoot<AccountId>;
+    type RuntimeEvent = RuntimeEvent;
+    type SpendPeriod = ConstU32<{ 1 * WEEK }>;
+    type PayoutPeriod = ConstU32<{ 30 * DAYS }>;
+    type Burn = Burn;
+    type BurnDestination = ();
+    type SpendFunds = ();
+    type WeightInfo = pallet_treasury::weights::SubstrateWeight<Runtime>;
+    type MaxApprovals = MaxApprovals;
+    type SpendOrigin = EnsureRootWithSuccess<AccountId, MaxSpend>;
+    type AssetKind = ();
+    type Beneficiary = AccountId;
+    type BeneficiaryLookup = IdentityLookup<Self::Beneficiary>;
+    type Paymaster = PayFromAccount<Balances, TreasuryAccount>;
+    type BalanceConverter = UnityAssetBalanceConversion;
+    type BlockNumberProvider = RelaychainDataProvider<Runtime>;
+    #[cfg(feature = "runtime-benchmarks")]
+    type BenchmarkHelper = ();
 }
 
 impl pallet_sudo::Config for Runtime {

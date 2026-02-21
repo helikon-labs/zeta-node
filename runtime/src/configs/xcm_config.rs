@@ -27,10 +27,10 @@ use xcm_builder::{
     AllowSubscriptionsFrom, AllowTopLevelPaidExecutionFrom, DenyReserveTransferToRelayChain,
     DescribeAllTerminal, DescribeFamily, DescribeTerminus, EnsureXcmOrigin, FixedWeightBounds,
     FrameTransactionalProcessor, FungibleAdapter, HashedDescription, IsConcrete, NativeAsset,
-    ParentIsPreset, RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
-    SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit,
-    TrailingSetTopicAsId, UsingComponents, WithComputedOrigin, WithUniqueTopic,
-    XcmFeeManagerFromComponents,
+    ParentIsPreset, RelayChainAsNative, SendXcmFeeToAccount, SiblingParachainAsNative,
+    SiblingParachainConvertsVia, SignedAccountId32AsNative, SignedToAccountId32,
+    SovereignSignedViaLocation, TakeWeightCredit, TrailingSetTopicAsId, UsingComponents,
+    WithComputedOrigin, WithUniqueTopic, XcmFeeManagerFromComponents,
 };
 use xcm_executor::XcmExecutor;
 
@@ -144,6 +144,10 @@ pub type Barrier = TrailingSetTopicAsId<
     >,
 >;
 
+parameter_types! {
+    pub TreasuryAccount: AccountId = pallet_treasury::Pallet::<Runtime>::account_id();
+}
+
 pub type WaivedLocations = Equals<RootLocation>;
 
 pub struct XcmConfig;
@@ -173,7 +177,7 @@ impl xcm_executor::Config for XcmConfig {
         WaivedLocations,
         // fees from non-waived origins are dropped - to be replaced with
         // SendXcmFeeToAccount<LocalAssetTransactor, SomeAccount> to collect them
-        (),
+        SendXcmFeeToAccount<LocalAssetTransactor, TreasuryAccount>,
     >;
     type MessageExporter = ();
     type UniversalAliases = Nothing;

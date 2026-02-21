@@ -194,10 +194,11 @@ pub use block_times::*;
 pub const MINUTES: BlockNumber = 60_000 / (MILLI_SECS_PER_BLOCK as BlockNumber);
 pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
+pub const WEEK: BlockNumber = DAYS * 7;
 
 // Unit = the base number of indivisible units for balances
-pub const UNIT: Balance = 1_000_000_000;
-pub const CENTS: Balance = UNIT / 100;
+pub const ZETAS: Balance = 1_000_000_000;
+pub const CENTS: Balance = ZETAS / 100;
 pub const MILLI_UNIT: Balance = 1_000_000;
 pub const MICRO_UNIT: Balance = 1_000;
 
@@ -291,6 +292,8 @@ mod runtime {
     pub type TransactionPayment = pallet_transaction_payment;
     #[runtime::pallet_index(12)]
     pub type Vesting = pallet_vesting;
+    #[runtime::pallet_index(13)]
+    pub type Treasury = pallet_treasury;
 
     // governance
     #[runtime::pallet_index(20)]

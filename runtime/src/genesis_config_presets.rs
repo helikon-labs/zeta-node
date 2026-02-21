@@ -1,7 +1,7 @@
 use crate::{
     AccountId, Balance, BalancesConfig, CollatorSelectionConfig, ParachainInfoConfig,
     PolkadotXcmConfig, RuntimeGenesisConfig, SessionConfig, SessionKeys, SudoConfig,
-    UNIT as BALANCE_UNIT,
+    ZETAS as BALANCE_UNIT,
 };
 
 use alloc::{vec, vec::Vec};
