@@ -1,4 +1,4 @@
-use super::PriceForParentDelivery;
+use super::{PriceForParentDelivery, TreasuryAccount};
 use crate::{
     AccountId, AllPalletsWithSystem, Balances, ParachainInfo, ParachainSystem, PolkadotXcm,
     Runtime, RuntimeCall, RuntimeEvent, RuntimeOrigin, WeightToFee, XcmpQueue,
@@ -143,10 +143,6 @@ pub type Barrier = TrailingSetTopicAsId<
         ),
     >,
 >;
-
-parameter_types! {
-    pub TreasuryAccount: AccountId = pallet_treasury::Pallet::<Runtime>::account_id();
-}
 
 pub type WaivedLocations = Equals<RootLocation>;
 

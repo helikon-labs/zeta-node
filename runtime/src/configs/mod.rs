@@ -37,12 +37,12 @@ use xcm::latest::prelude::{AssetId, BodyId};
 // Local module imports
 use super::{
     weights::{BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight},
-    AccountId, Aura, Balance, Balances, BlakeTwo256, Block, BlockNumber, CollatorSelection,
-    ConsensusHook, Hash, MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Permill,
-    Preimage, Runtime, RuntimeCall, RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason,
-    RuntimeOrigin, RuntimeTask, Session, SessionKeys, System, WeightToFee, XcmpQueue,
-    AVERAGE_ON_INITIALIZE_RATIO, CENTS, DAYS, EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT,
-    MICRO_UNIT, NORMAL_DISPATCH_RATIO, SLOT_DURATION, VERSION, WEEK, ZETAS,
+    AccountId, Aura, Balance, Balances, BlakeTwo256, Block, CollatorSelection, ConsensusHook, Hash,
+    MessageQueue, Nonce, OriginCaller, PalletInfo, ParachainSystem, Permill, Preimage, Runtime,
+    RuntimeCall, RuntimeEvent, RuntimeFreezeReason, RuntimeHoldReason, RuntimeOrigin, RuntimeTask,
+    Session, SessionKeys, System, WeightToFee, XcmpQueue, AVERAGE_ON_INITIALIZE_RATIO, CENTS, DAYS,
+    EXISTENTIAL_DEPOSIT, HOURS, MAXIMUM_BLOCK_WEIGHT, MICRO_ZETA, NORMAL_DISPATCH_RATIO,
+    SLOT_DURATION, VERSION, WEEK, ZETA,
 };
 use codec::{Decode, DecodeWithMemTracking, Encode, MaxEncodedLen};
 use xcm_config::{RelayLocation, XcmOriginToTransactDispatchOrigin};
@@ -159,7 +159,7 @@ impl pallet_balances::Config for Runtime {
 
 parameter_types! {
     /// Relay Chain `TransactionByteFee` / 10
-    pub const TransactionByteFee: Balance = 10 * MICRO_UNIT;
+    pub const TransactionByteFee: Balance = 10 * MICRO_ZETA;
 }
 
 impl pallet_transaction_payment::Config for Runtime {
@@ -200,7 +200,7 @@ parameter_types! {
     pub const MaxApprovals: u32 = 100;
     pub const SpendPeriod: u32 = 1 * WEEK;
     pub const PayoutPeriod: u32 = 30 * DAYS;
-    pub const MaxSpend: Balance = 1_000_000 * ZETAS;
+    pub const MaxSpend: Balance = 1_000_000 * ZETA;
 }
 
 impl pallet_treasury::Config for Runtime {
@@ -376,7 +376,6 @@ impl pallet_preimage::Config for Runtime {
 parameter_types! {
     pub MaximumSchedulerWeight: Weight = Perbill::from_percent(80) * RuntimeBlockWeights::get().max_block;
     pub const MaxScheduledPerBlock: u32 = 50;
-    pub const NoPreimagePostponement: Option<u32> = Some(10);
 }
 
 impl pallet_scheduler::Config for Runtime {
@@ -510,7 +509,6 @@ impl pallet_aura::Config for Runtime {
 
 parameter_types! {
     pub const PotId: PalletId = PalletId(*b"PotStake");
-    pub const SessionLength: BlockNumber = 6 * HOURS;
     // StakingAdmin pluralistic body.
     pub const StakingAdminBodyId: BodyId = BodyId::Defense;
 }

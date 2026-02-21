@@ -123,7 +123,7 @@ impl WeightToFeePolynomial for WeightToFee {
     fn polynomial() -> WeightToFeeCoefficients<Self::Balance> {
         // in Rococo, extrinsic base weight (smallest non-zero weight) is mapped to 1 MILLI_UNIT:
         // in our template, we map to 1/10 of that, or 1/10 MILLI_UNIT
-        let p = MILLI_UNIT / 10;
+        let p = MILLI_ZETA / 10;
         let q = 100 * Balance::from(ExtrinsicBaseWeight::get().ref_time());
         smallvec![WeightToFeeCoefficient {
             degree: 1,
@@ -196,14 +196,14 @@ pub const HOURS: BlockNumber = MINUTES * 60;
 pub const DAYS: BlockNumber = HOURS * 24;
 pub const WEEK: BlockNumber = DAYS * 7;
 
-// Unit = the base number of indivisible units for balances
-pub const ZETAS: Balance = 1_000_000_000;
-pub const CENTS: Balance = ZETAS / 100;
-pub const MILLI_UNIT: Balance = 1_000_000;
-pub const MICRO_UNIT: Balance = 1_000;
+// ZETA = the base number of indivisible units for balances
+pub const ZETA: Balance = 1_000_000_000;
+pub const CENTS: Balance = ZETA / 100;
+pub const MILLI_ZETA: Balance = 1_000_000;
+pub const MICRO_ZETA: Balance = 1_000;
 
 /// The existential deposit.
-pub const EXISTENTIAL_DEPOSIT: Balance = MILLI_UNIT;
+pub const EXISTENTIAL_DEPOSIT: Balance = MILLI_ZETA;
 
 /// We assume that ~5% of the block weight is consumed by `on_initialize` handlers. This is
 /// used to limit the maximal weight of a single extrinsic.
