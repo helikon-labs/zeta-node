@@ -10,7 +10,7 @@ use polkadot_sdk::{
 
 use frame_support::{
     parameter_types,
-    traits::{ConstU32, Contains, Everything, Nothing},
+    traits::{ConstU32, Contains, Equals, Everything, Nothing},
     weights::Weight,
 };
 use frame_system::EnsureRoot;
@@ -30,11 +30,12 @@ use xcm_builder::{
     ParentIsPreset, RelayChainAsNative, SiblingParachainAsNative, SiblingParachainConvertsVia,
     SignedAccountId32AsNative, SignedToAccountId32, SovereignSignedViaLocation, TakeWeightCredit,
     TrailingSetTopicAsId, UsingComponents, WithComputedOrigin, WithUniqueTopic,
+    XcmFeeManagerFromComponents,
 };
 use xcm_executor::XcmExecutor;
 
 parameter_types! {
-    pub const NativeLocation: Location = Location::here();
+    pub const RootLocation: Location = Location::here();
     pub const RelayLocation: Location = Location::parent();
     pub const RelayNetwork: Option<NetworkId> = Some(NetworkId::Polkadot);
     pub RelayChainOrigin: RuntimeOrigin = cumulus_pallet_xcm::Origin::Relay.into();
@@ -67,7 +68,7 @@ pub type LocalAssetTransactor = FungibleAdapter<
     // Use this currency:
     Balances,
     // Use this currency when it is a fungible asset matching the given location or name:
-    IsConcrete<NativeLocation>,
+    IsConcrete<RootLocation>,
     // Do a simple punn to convert an AccountId32 Location into a native chain account ID:
     LocationToAccountId,
     // Our chain's account ID type (we can't get away without mentioning it explicitly):
@@ -143,6 +144,8 @@ pub type Barrier = TrailingSetTopicAsId<
     >,
 >;
 
+pub type WaivedLocations = Equals<RootLocation>;
+
 pub struct XcmConfig;
 impl xcm_executor::Config for XcmConfig {
     type RuntimeCall = RuntimeCall;
@@ -157,7 +160,7 @@ impl xcm_executor::Config for XcmConfig {
     type Barrier = Barrier;
     type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
     type Trader =
-        UsingComponents<WeightToFee, NativeLocation, AccountId, Balances, ToAuthor<Runtime>>;
+        UsingComponents<WeightToFee, RootLocation, AccountId, Balances, ToAuthor<Runtime>>;
     type ResponseHandler = PolkadotXcm;
     type AssetTrap = PolkadotXcm;
     type AssetClaims = PolkadotXcm;
@@ -166,7 +169,12 @@ impl xcm_executor::Config for XcmConfig {
     type MaxAssetsIntoHolding = MaxAssetsIntoHolding;
     type AssetLocker = ();
     type AssetExchanger = ();
-    type FeeManager = ();
+    type FeeManager = XcmFeeManagerFromComponents<
+        WaivedLocations,
+        // fees from non-waived origins are dropped - to be replaced with
+        // SendXcmFeeToAccount<LocalAssetTransactor, SomeAccount> to collect them
+        (),
+    >;
     type MessageExporter = ();
     type UniversalAliases = Nothing;
     type CallDispatcher = RuntimeCall;

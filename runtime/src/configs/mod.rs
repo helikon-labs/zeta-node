@@ -411,7 +411,7 @@ impl pallet_message_queue::Config for Runtime {
 impl cumulus_pallet_aura_ext::Config for Runtime {}
 
 parameter_types! {
-    pub LocalFeeAssetId: AssetId = AssetId(xcm_config::NativeLocation::get());
+    pub LocalFeeAssetId: AssetId = AssetId(xcm_config::RootLocation::get());
     /// The asset ID for the asset that we use to pay for message delivery fees.
     pub RelayFeeAssetId: AssetId = AssetId(xcm_config::RelayLocation::get());
     /// The base fee for the message delivery fees.
